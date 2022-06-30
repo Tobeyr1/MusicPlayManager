@@ -8,7 +8,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.lzx.starrysky.OnPlayProgressListener
 import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
+import com.lzx.starrysky.notification.CustomNotification
+import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.NotificationConfig
+import com.lzx.starrysky.notification.NotificationManager
 import com.tobery.musicplay.SpConstant.REPEAT_MODE_NONE
 import java.io.File
 
@@ -40,6 +43,7 @@ object MusicPlay {
                setNotificationSwitch(config.defaultNotificationSwitch)
                setNotificationType(config.notificationType)
                setNotificationConfig(notificationConfig)
+               setNotificationFactory(config.factory)
            }
            .apply()
     }
