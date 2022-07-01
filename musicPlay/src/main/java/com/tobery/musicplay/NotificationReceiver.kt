@@ -17,6 +17,7 @@ public class NotificationReceiver : BroadcastReceiver() {
         //bundleInfo是你在配置通知栏的那个bundle，里面可以拿到你自定义的参数
         val bundleInfo = intent?.getBundleExtra("bundleInfo")
         val targetClass = bundleInfo?.getString("targetClass")?.getTargetClass()
+        "广播接收器里的class:${targetClass?.name}".printLog()
         if (StarrySky.getActivityStack().isNullOrEmpty()) {
            /* val mainIntent = Intent(context, clazz)
             mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
