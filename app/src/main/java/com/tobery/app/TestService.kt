@@ -76,7 +76,7 @@ class TestService : Service() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             mBuilder?.setContentTitle(resources.getString(R.string.app_name))
         }
-        //startForeground(notifyId, mBuilder!!.build())
+        startForeground(notifyId, mBuilder!!.build())
     }
 
     /**

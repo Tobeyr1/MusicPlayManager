@@ -26,7 +26,8 @@ data class PlayConfig(
             override fun build(
                 context: Context, config: NotificationConfig?
             ): INotification {
-                return if (config == null) CustomNotification(context) else DefaultCustomNotification(context, config)
+                return DefaultCustomNotification(context, config!!)
+              //  return if (config == null) CustomNotification(context) else DefaultCustomNotification(context, config)
             }
         }
     }

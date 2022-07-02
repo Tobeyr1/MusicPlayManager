@@ -1,5 +1,6 @@
 package com.tobery.musicplay
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -71,7 +72,6 @@ import com.lzx.starrysky.notification.INotification.Companion.LAYOUT_NOTIFY_PLAY
 import com.lzx.starrysky.notification.INotification.Companion.TIME_INTERVAL
 import com.lzx.starrysky.notification.NotificationConfig
 import com.lzx.starrysky.notification.utils.NotificationColorUtils
-import com.lzx.starrysky.notification.utils.NotificationUtils
 import com.lzx.starrysky.playback.Playback
 import com.lzx.starrysky.service.MusicService
 import com.lzx.starrysky.utils.TimerTaskManager
@@ -237,8 +237,9 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         //setContentIntent
         val clazz = config.targetClass.getTargetClass()
         "当前clazz${clazz?.name}".printLog()
+        "当前上下文${context.applicationContext}".printLog()
         clazz?.let {
-            val intent = NotificationUtils.createContentIntent(context, config, songInfo, config.targetClassBundle, it)
+            val intent = createContentIntent(context, config, songInfo, config.targetClassBundle, it)
             notificationBuilder.setContentIntent(intent)
         }
         //这里不能复用，会导致内存泄漏，需要每次都创建
@@ -287,6 +288,59 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             notificationChannel.setShowBadge(true)
             manager.createNotificationChannel(notificationChannel)
         }
+    }
+
+    /**
+     * 设置content点击事件
+     */
+    private fun createContentIntent(
+        context: Context, config: NotificationConfig?,
+        songInfo: SongInfo?, bundle: Bundle?, targetClass: Class<*>
+    ): PendingIntent {
+        //构建 Intent
+        val openUI = Intent(context, targetClass)
+//        openUI.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        openUI.putExtra("notification_entry", INotification.ACTION_INTENT_CLICK)
+        "openUI内容$openUI".printLog()
+        songInfo?.let {
+            openUI.putExtra("songInfo", it)
+        }
+        bundle?.let {
+            openUI.putExtra("bundleInfo", it)
+        }
+        //构建 PendingIntent
+        @SuppressLint("WrongConstant")
+        val pendingIntent: PendingIntent
+        val requestCode = INotification.REQUEST_CODE
+        val flags = PendingIntent.FLAG_CANCEL_CURRENT
+        val pi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.getActivity(
+                context,
+                requestCode,
+                openUI,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getActivity(
+                context,
+                requestCode,
+                openUI,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
+       /* pendingIntent = when (config?.pendingIntentMode) {
+            NotificationConfig.MODE_ACTIVITY -> {
+                PendingIntent.getActivity(context, requestCode, openUI, flags)
+            }
+            NotificationConfig.MODE_BROADCAST -> {
+                PendingIntent.getBroadcast(context, requestCode, openUI, flags)
+            }
+            NotificationConfig.MODE_SERVICE -> {
+                PendingIntent.getService(context, requestCode, openUI, flags)
+            }
+            else -> PendingIntent.getActivity(context, requestCode, openUI, flags)
+        }*/
+        return pi
     }
 
     /**

@@ -40,7 +40,7 @@ public class JavaActivity extends AppCompatActivity {
             return null;
         });
         findViewById(R.id.bt_one).setOnClickListener(v -> {
-           // MusicPlay.playMusicByUrl("http://music.163.com/song/media/outer/url?id=33894312");
+            MusicPlay.playMusicByUrl("http://music.163.com/song/media/outer/url?id=33894312");
 
         });
     }
