@@ -18,11 +18,11 @@ import java.io.File
 object MusicPlay {
 
     val notificationConfig = NotificationConfig.create {
-        targetClass { "com.tobery.musicplay.NotificationReceiver" }
+        targetClass { "com.tobery.app.JavaActivity" }
         targetClassBundle {
             val bundle = Bundle()
             bundle.putString("title", "我是点击通知栏转跳带的参数")
-            bundle.putString("targetClass", "com.tobery.personalmusic.ui.song.CurrentSongPlayActivity")
+            bundle.putString("targetClass", "com.tobery.app.JavaActivity")
             //参数自带当前音频播放信息，不用自己传
             return@targetClassBundle bundle
         }

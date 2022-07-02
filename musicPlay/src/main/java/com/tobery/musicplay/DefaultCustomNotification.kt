@@ -1,9 +1,7 @@
 package com.tobery.musicplay
 
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.annotation.SuppressLint
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,11 +13,11 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat
 import android.widget.RemoteViews
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.lzx.starrysky.R
 import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.INotification
@@ -33,7 +31,6 @@ import com.lzx.starrysky.notification.INotification.Companion.ACTION_PLAY
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_PLAY_OR_PAUSE
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_PREV
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_STOP
-import com.lzx.starrysky.notification.INotification.Companion.CHANNEL_ID
 import com.lzx.starrysky.notification.INotification.Companion.DRAWABLE_NOTIFY_BTN_DARK_DOWNLOAD
 import com.lzx.starrysky.notification.INotification.Companion.DRAWABLE_NOTIFY_BTN_DARK_FAVORITE
 import com.lzx.starrysky.notification.INotification.Companion.DRAWABLE_NOTIFY_BTN_DARK_LYRICS
@@ -72,11 +69,9 @@ import com.lzx.starrysky.notification.INotification.Companion.ID_TXT_NOTIFY_ARTI
 import com.lzx.starrysky.notification.INotification.Companion.ID_TXT_NOTIFY_SONGNAME
 import com.lzx.starrysky.notification.INotification.Companion.LAYOUT_NOTIFY_BIG_PLAY
 import com.lzx.starrysky.notification.INotification.Companion.LAYOUT_NOTIFY_PLAY
-import com.lzx.starrysky.notification.INotification.Companion.NOTIFICATION_ID
 import com.lzx.starrysky.notification.INotification.Companion.TIME_INTERVAL
 import com.lzx.starrysky.notification.NotificationConfig
 import com.lzx.starrysky.notification.utils.NotificationColorUtils
-import com.lzx.starrysky.notification.utils.NotificationUtils
 import com.lzx.starrysky.playback.Playback
 import com.lzx.starrysky.service.MusicService
 import com.lzx.starrysky.utils.TimerTaskManager
@@ -86,7 +81,8 @@ import com.lzx.starrysky.utils.getResourceId
 import com.lzx.starrysky.utils.getTargetClass
 import com.lzx.starrysky.utils.orDef
 
-
+const val CHANNEL_ID = "com.tobery.musicplay.MUSIC_CHANNEL_ID"
+const val NOTIFICATION_ID = 413
 class DefaultCustomNotification constructor(val context: Context,var config: NotificationConfig = NotificationConfig.Builder().build()): BroadcastReceiver(),INotification {
 
     companion object {
@@ -224,10 +220,11 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         if (songInfo == null) {
             return null
         }
-        val smallIcon = if (config.smallIconRes != -1) config.smallIconRes else R.drawable.ic_notification
+        "开始创建通知".printLog()
+        val smallIcon = if (config.smallIconRes != -1) config.smallIconRes else com.lzx.starrysky.R.drawable.ic_notification
         //适配8.0
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationUtils.createNotificationChannel(context, notificationManager!!)
+            createNotificationChannel(context, notificationManager!!)
         }
         val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
         notificationBuilder
@@ -236,10 +233,13 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentTitle(songInfo?.songName) //歌名
             .setContentText(songInfo?.artist) //艺术家
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
         //setContentIntent
         val clazz = config.targetClass.getTargetClass()
+        "当前clazz${clazz?.name}".printLog()
+        "当前上下文${context.applicationContext}".printLog()
         clazz?.let {
-            val intent = NotificationUtils.createContentIntent(context, config, songInfo, config.targetClassBundle, it)
+            val intent = createContentIntent(context, config, songInfo, config.targetClassBundle, it)
             notificationBuilder.setContentIntent(intent)
         }
         //这里不能复用，会导致内存泄漏，需要每次都创建
@@ -267,10 +267,80 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
     }
 
     private fun setNotificationPlaybackState(builder: NotificationCompat.Builder) {
+        "当前$mStarted".printLog()
         if (!mStarted) {
             (context as MusicService).stopForeground(true)
         }
         builder.setOngoing(playbackState == PlaybackStage.PLAYING)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(
+        context: Context,
+        manager: NotificationManager
+    ) {
+        if (manager.getNotificationChannel(CHANNEL_ID) == null) {
+            val notificationChannel = NotificationChannel(CHANNEL_ID, context.getString(R.string.notification_channel), NotificationManager.IMPORTANCE_LOW)
+            notificationChannel.description = context.getString(R.string.notification_channel_description)
+            //通知显示
+            notificationChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            //是否在久按桌面图标时显示此渠道的通知
+            notificationChannel.setShowBadge(true)
+            manager.createNotificationChannel(notificationChannel)
+        }
+    }
+
+    /**
+     * 设置content点击事件
+     */
+    private fun createContentIntent(
+        context: Context, config: NotificationConfig?,
+        songInfo: SongInfo?, bundle: Bundle?, targetClass: Class<*>
+    ): PendingIntent {
+        //构建 Intent
+        val openUI = Intent(context, targetClass)
+//        openUI.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        openUI.putExtra("notification_entry", INotification.ACTION_INTENT_CLICK)
+        "openUI内容$openUI".printLog()
+        songInfo?.let {
+            openUI.putExtra("songInfo", it)
+        }
+        bundle?.let {
+            openUI.putExtra("bundleInfo", it)
+        }
+        //构建 PendingIntent
+        @SuppressLint("WrongConstant")
+        val pendingIntent: PendingIntent
+        val requestCode = INotification.REQUEST_CODE
+        val flags = PendingIntent.FLAG_CANCEL_CURRENT
+        val pi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.getActivity(
+                context,
+                requestCode,
+                openUI,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            PendingIntent.getActivity(
+                context,
+                requestCode,
+                openUI,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
+       /* pendingIntent = when (config?.pendingIntentMode) {
+            NotificationConfig.MODE_ACTIVITY -> {
+                PendingIntent.getActivity(context, requestCode, openUI, flags)
+            }
+            NotificationConfig.MODE_BROADCAST -> {
+                PendingIntent.getBroadcast(context, requestCode, openUI, flags)
+            }
+            NotificationConfig.MODE_SERVICE -> {
+                PendingIntent.getService(context, requestCode, openUI, flags)
+            }
+            else -> PendingIntent.getActivity(context, requestCode, openUI, flags)
+        }*/
+        return pi
     }
 
     /**
@@ -301,7 +371,8 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
     private fun updateRemoteViewUI(
         notification: Notification?, songInfo: SongInfo?, smallIcon: Int
     ) {
-        val isDark = colorUtils.isDarkNotificationBar(context, notification)
+        //val isDark = colorUtils.isDarkNotificationBar(context, notification)
+        val isDark = true
         var art: Bitmap? = songInfo?.coverBitmap
         val artistName = songInfo?.artist ?: ""
         val songName = songInfo?.songName ?: ""
@@ -356,7 +427,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         if (art == null) {
             fetchArtUrl = songInfo?.songCover
             if (fetchArtUrl.isNullOrEmpty()) {
-                art = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
+                art = BitmapFactory.decodeResource(context.resources, com.lzx.starrysky.R.drawable.default_art)
             }
         }
         if (art != null) {
@@ -429,10 +500,13 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         bigRemoteView?.setImageViewResource(ID_IMG_NOTIFY_PRE.getResId(), res)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun startNotification(songInfo: SongInfo?, playbackState: String) {
+        "开启通知".printLog()
         this.playbackState = playbackState
         if (this.songInfo?.songId != songInfo?.songId) {
             this.songInfo = songInfo
+            "当前歌曲信息是否正确".printLog()
             createNotification()
         }
         if (!mStarted) {
@@ -447,6 +521,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 filter.addAction(ACTION_PLAY_OR_PAUSE)
                 filter.addAction(ACTION_CLOSE)
                 context.registerReceiver(this, filter)
+                "notification是否为空${notification.channelId}".printLog()
                 (context as MusicService).startForeground(NOTIFICATION_ID, notification)
                 mStarted = true
             }
