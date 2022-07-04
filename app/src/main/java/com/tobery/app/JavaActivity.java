@@ -3,13 +3,11 @@ package com.tobery.app;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
-import android.content.Intent;
 import android.os.Bundle;
-
-
 import com.tobery.musicplay.MusicPlay;
 import com.tobery.musicplay.PermissionChecks;
 import com.tobery.musicplay.PlayConfig;
+import com.tobery.musicplay.MusicInfo;
 
 import java.util.ArrayList;
 
@@ -40,8 +38,22 @@ public class JavaActivity extends AppCompatActivity {
             return null;
         });
         findViewById(R.id.bt_one).setOnClickListener(v -> {
-            MusicPlay.playMusicByUrl("http://music.163.com/song/media/outer/url?id=33894312");
-
+          //  http://p1.music.126.net/kPDkBh_W3DmDKJZCUeFCrA==/19138099393621521.jpg
+            MusicInfo songInfo = new MusicInfo();
+            songInfo.setSongId("11");
+            songInfo.setSongUrl("http://music.163.com/song/media/outer/url?id=33894312");
+            songInfo.setArtist("歌手");
+            songInfo.setSongName("海阔天空");
+            songInfo.setSongCover("http://p1.music.126.net/kPDkBh_W3DmDKJZCUeFCrA==/19138099393621521.jpg");
+            MusicPlay.playMusicByInfo(songInfo);
+           // MusicPlay.playMusicByUrl("http://music.163.com/song/media/outer/url?id=33894312");
+           // StarrySky.with().playMusicByUrl("http://music.163.com/song/media/outer/url?id=33894312");
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+       // MusicPlay.stopMusic();
     }
 }

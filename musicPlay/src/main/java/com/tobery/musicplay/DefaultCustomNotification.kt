@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.lzx.starrysky.SongInfo
+import com.lzx.starrysky.StarrySky
 import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_CLOSE
@@ -221,7 +222,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             return null
         }
         "开始创建通知".printLog()
-        val smallIcon = if (config.smallIconRes != -1) config.smallIconRes else com.lzx.starrysky.R.drawable.ic_notification
+        val smallIcon = if (config.smallIconRes != -1) config.smallIconRes else R.drawable.ic_notification
         //适配8.0
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(context, notificationManager!!)
@@ -372,7 +373,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         notification: Notification?, songInfo: SongInfo?, smallIcon: Int
     ) {
         //val isDark = colorUtils.isDarkNotificationBar(context, notification)
-        val isDark = true
+        val isDark = false
         var art: Bitmap? = songInfo?.coverBitmap
         val artistName = songInfo?.artist ?: ""
         val songName = songInfo?.songName ?: ""
@@ -424,12 +425,18 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         disablePreviousBtn(hasPreSong, isDark)
         //封面
         var fetchArtUrl: String? = null
-        if (art == null) {
+        "歌曲信息${songInfo?.songName}".printLog()
+        "歌曲信息${songInfo?.songUrl}".printLog()
+        "歌曲信息${songInfo?.songCover}".printLog()
+        "歌曲信息${songInfo?.artist}".printLog()
+       /* if (art == null) {
             fetchArtUrl = songInfo?.songCover
             if (fetchArtUrl.isNullOrEmpty()) {
-                art = BitmapFactory.decodeResource(context.resources, com.lzx.starrysky.R.drawable.default_art)
+                art = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
             }
-        }
+        }*/
+        fetchArtUrl = songInfo?.songCover
+        art = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
         if (art != null) {
             remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
             bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
@@ -445,6 +452,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
      * 加载封面
      */
     private fun fetchBitmapFromURLAsync(fetchArtUrl: String, notification: Notification?) {
+        "加载图片网址$fetchArtUrl".printLog()
         Glide.with(context).asBitmap().load(fetchArtUrl).into(object : CustomTarget<Bitmap?>(){
             override fun onResourceReady(bitmap: Bitmap, transition: Transition<in Bitmap?>?) {
                 remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), bitmap)
@@ -457,6 +465,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             }
 
         })
+        StarrySky.getPlayerCache()?.printLog()
        /* StarrySky.getImageLoader()?.load(fetchArtUrl, object : ImageLoaderCallBack {
             override fun onBitmapLoaded(bitmap: Bitmap?) {
                 bitmap?.let {
@@ -522,6 +531,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 filter.addAction(ACTION_CLOSE)
                 context.registerReceiver(this, filter)
                 "notification是否为空${notification.channelId}".printLog()
+                "context内容:${context.packageName}".printLog()
                 (context as MusicService).startForeground(NOTIFICATION_ID, notification)
                 mStarted = true
             }
@@ -572,6 +582,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             }
             ACTION_UPDATE_LYRICS -> {
                 val isChecked = extras?.getBoolean("isChecked").orDef()
+                "当前是否点击歌词$isChecked".printLog()
                 updateLyricsUI(isChecked)
             }
         }
