@@ -8,17 +8,14 @@ import androidx.lifecycle.LifecycleOwner
 import com.lzx.starrysky.OnPlayProgressListener
 import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
-import com.lzx.starrysky.notification.CustomNotification
-import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.NotificationConfig
-import com.lzx.starrysky.notification.NotificationManager
 import com.tobery.musicplay.SpConstant.REPEAT_MODE_NONE
 import java.io.File
 
 object MusicPlay {
 
     val notificationConfig = NotificationConfig.create {
-        targetClass { "com.tobery.app.JavaActivity" }
+        targetClass { "com.tobery.musicplay.NotificationReceiver" }
         targetClassBundle {
             val bundle = Bundle()
             bundle.putString("title", "我是点击通知栏转跳带的参数")
@@ -46,6 +43,7 @@ object MusicPlay {
                setNotificationFactory(config.factory)
            }
            .apply()
+        setRepeatMode()
     }
 
     //进度监听
@@ -124,14 +122,14 @@ object MusicPlay {
 
     //播放 by SongInfo
     @JvmStatic
-    fun playMusicByInfo(info: SongInfo?){
-        StarrySky.with().playMusicByInfo(info)
+    fun playMusicByInfo(info: MusicInfo?){
+        StarrySky.with().playMusicByInfo(info?.revert())
     }
 
     //播放列表以及对应歌曲的下标
     @JvmStatic
-    fun playMusicByList(mediaList: MutableList<SongInfo>,index: Int = 0){
-        StarrySky.with().playMusic(mediaList,index)
+    fun playMusicByList(mediaList: MutableList<MusicInfo>, index: Int = 0){
+        StarrySky.with().playMusic(mediaList.map { it.revert() }.toMutableList(),index)
     }
 
     //暂停
@@ -184,16 +182,16 @@ object MusicPlay {
 
     //获取当前播放音乐信息
     @JvmStatic
-    fun getNowPlayingSongInfo(): SongInfo? = StarrySky.with().getNowPlayingSongInfo()
+    fun getNowPlayingSongInfo(): MusicInfo? = StarrySky.with().getNowPlayingSongInfo()?.convert()
 
     //获取播放队列
     @JvmStatic
-    fun getPlayList():MutableList<SongInfo> = StarrySky.with().getPlayList()
+    fun getPlayList():MutableList<MusicInfo> = StarrySky.with().getPlayList().map { it.convert() }.toMutableList()
 
     //更新播放列表
     @JvmStatic
-    fun updatePlayList(list: MutableList<SongInfo>){
-        StarrySky.with().updatePlayList(list)
+    fun updatePlayList(list: MutableList<MusicInfo>){
+        StarrySky.with().updatePlayList(list.map { it.revert() }.toMutableList())
     }
 
     //根据id移除
@@ -212,6 +210,32 @@ object MusicPlay {
     @JvmStatic
     fun openNotification(){
         StarrySky.openNotification()
+    }
+
+    private fun SongInfo.convert(): MusicInfo{
+        return MusicInfo(
+            songId = this.songId,
+            songUrl = this.songUrl,
+            songName = this.songName,
+            artist = this.artist,
+            songCover = this.songCover,
+            duration = this.duration,
+            decode = this.decode,
+            headData = this.headData
+        )
+    }
+
+    private fun MusicInfo.revert(): SongInfo{
+        return SongInfo(
+            this.songId,
+            this.songUrl,
+            this.songName,
+            this.artist,
+            this.songCover,
+            this.duration,
+            this.decode,
+            this.headData
+        )
     }
 
 }
