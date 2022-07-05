@@ -1,10 +1,10 @@
 package com.tobery.musicplay
 
-import android.content.Context
 import android.os.Bundle
 import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.NotificationConfig
-import com.lzx.starrysky.notification.NotificationManager
+import com.tobery.musicplay.MusicNotificationManager.Companion.CUSTOM_NOTIFICATION_FACTORY
+
 
 data class PlayConfig(
     val defaultNotificationSwitch: Boolean = true, //通知栏开关
@@ -16,9 +16,8 @@ data class PlayConfig(
     val defaultImageLoader: GlideImageLoader = GlideImageLoader(), //默认glide框架
     val defaultPermissionIntercept: PermissionInterceptor = PermissionInterceptor(),
     val notificationClass: String = "com.tobery.app.MainActivity",
-    //val notificationClass: ObservableField<String> = ObservableField("com.tobery.app.MainActivity"),
-    val factory: NotificationManager.NotificationFactory = DEFAULT_CUSTOM_NOTIFICATION_FACTORY,
-    val defaultNotificationConfig: NotificationConfig = NotificationConfig.create {
+    val factory: MusicNotificationManager.NotificationFactory = CUSTOM_NOTIFICATION_FACTORY,
+    val defaultNotificationConfig: MusicNotificationConfig = MusicNotificationConfig.create {
         targetClass { "com.tobery.musicplay.NotificationReceiver" }
         targetClassBundle {
             val bundle = Bundle()
@@ -32,16 +31,4 @@ data class PlayConfig(
         }
         pendingIntentMode { NotificationConfig.MODE_BROADCAST }
     }
-){
-    companion object{
-        val DEFAULT_CUSTOM_NOTIFICATION_FACTORY: NotificationManager.NotificationFactory = object :
-            NotificationManager.NotificationFactory {
-            override fun build(
-                context: Context, config: NotificationConfig?
-            ): INotification {
-                return DefaultCustomNotification(context, config)
-              //  return if (config == null) CustomNotification(context) else DefaultCustomNotification(context, config)
-            }
-        }
-    }
-}
+)
