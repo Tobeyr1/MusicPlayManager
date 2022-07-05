@@ -11,6 +11,7 @@ class PermissionInterceptor  : StarrySkyInterceptor(){
     private lateinit var musicPermission: PermissionChecks
 
     override fun process(songInfo: SongInfo?, callback: InterceptCallback) {
+        "进入".printLog()
         if (songInfo == null) {
             callback.onInterrupt("SongInfo is null")
             return
@@ -20,13 +21,14 @@ class PermissionInterceptor  : StarrySkyInterceptor(){
             callback.onNext(songInfo)
             return
         }
-        musicPermission = PermissionChecks(ContextProvider.get().context)
+        "拦截器获取上下文${ContextProvider.get().context}".printLog()
+        "拦截器获取上下文${ContextProvider.get().context.packageName}".printLog()
         musicPermission.requestPermissions(arrayOf(
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_COARSE_LOCATION)){
+            Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            "是否判断权限$it".printLog()
             if (it){
                 SpConstant.HAS_PERMISSION = true
                 callback.onNext(songInfo)

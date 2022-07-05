@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.lzx.starrysky.OnPlayProgressListener
 import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
+import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.NotificationConfig
 import com.tobery.musicplay.SpConstant.REPEAT_MODE_NONE
 import java.io.File
@@ -60,7 +61,7 @@ object MusicPlay {
     @JvmStatic
     fun onPlayStateListener(owner: LifecycleOwner, callback: OnMusicPlayStateListener? = null){
         StarrySky.with().playbackState().observe(owner){
-            callback?.onPlayState(it)
+            callback?.onPlayState(it.stage)
         }
     }
 

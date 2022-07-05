@@ -6,8 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -16,10 +15,13 @@ import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.lzx.starrysky.SongInfo
-import com.lzx.starrysky.StarrySky
 import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_CLOSE
@@ -53,7 +55,6 @@ import com.lzx.starrysky.notification.INotification.Companion.DRAWABLE_NOTIFY_BT
 import com.lzx.starrysky.notification.INotification.Companion.DRAWABLE_NOTIFY_BTN_LIGHT_PREV_SELECTOR
 import com.lzx.starrysky.notification.INotification.Companion.DRAWABLE_NOTIFY_BTN_LYRICS
 import com.lzx.starrysky.notification.INotification.Companion.ID_CURR_PRO_TEXT
-import com.lzx.starrysky.notification.INotification.Companion.ID_IMG_NOTIFY_CLOSE
 import com.lzx.starrysky.notification.INotification.Companion.ID_IMG_NOTIFY_DOWNLOAD
 import com.lzx.starrysky.notification.INotification.Companion.ID_IMG_NOTIFY_FAVORITE
 import com.lzx.starrysky.notification.INotification.Companion.ID_IMG_NOTIFY_ICON
@@ -82,7 +83,7 @@ import com.lzx.starrysky.utils.getResourceId
 import com.lzx.starrysky.utils.getTargetClass
 import com.lzx.starrysky.utils.orDef
 
-const val CHANNEL_ID = "com.tobery.musicplay.MUSIC_CHANNEL_ID"
+const val CHANNEL_ID = "com.tobey.musicPlay.MUSIC_CHANNEL_ID"
 const val NOTIFICATION_ID = 413
 class DefaultCustomNotification constructor(val context: Context,var config: NotificationConfig = NotificationConfig.Builder().build()): BroadcastReceiver(),INotification {
 
@@ -103,7 +104,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
     private var favoriteIntent: PendingIntent
     private var lyricsIntent: PendingIntent
     private var downloadIntent: PendingIntent
-    private var closeIntent: PendingIntent
 
 
     private var playbackState: String = PlaybackStage.IDLE
@@ -123,6 +123,10 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
 
     private var timerTaskManager: TimerTaskManager? = null
 
+    private val option = RequestOptions()
+        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+        .transform(CenterCrop(), RoundedCorners(12))
+
     init {
         notificationManager = context.getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
         packageName = context.applicationContext.packageName
@@ -136,7 +140,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         favoriteIntent = config.favoriteIntent ?: ACTION_FAVORITE.getPendingIntent()
         lyricsIntent = config.lyricsIntent ?: ACTION_LYRICS.getPendingIntent()
         downloadIntent = config.downloadIntent ?: ACTION_DOWNLOAD.getPendingIntent()
-        closeIntent = config.closeIntent ?: ACTION_CLOSE.getPendingIntent()
         notificationManager.cancelAll()
     }
 
@@ -361,7 +364,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         remoteView.setOnClickPendingIntent(ID_IMG_NOTIFY_DOWNLOAD.getResId(), downloadIntent)
         remoteView.setOnClickPendingIntent(ID_IMG_NOTIFY_NEXT.getResId(), nextIntent)
         remoteView.setOnClickPendingIntent(ID_IMG_NOTIFY_PRE.getResId(), previousIntent)
-        remoteView.setOnClickPendingIntent(ID_IMG_NOTIFY_CLOSE.getResId(), closeIntent)
         remoteView.setOnClickPendingIntent(ID_IMG_NOTIFY_PLAY_OR_PAUSE.getResId(), playOrPauseIntent)
         return remoteView
     }
@@ -372,11 +374,11 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
     private fun updateRemoteViewUI(
         notification: Notification?, songInfo: SongInfo?, smallIcon: Int
     ) {
-        //val isDark = colorUtils.isDarkNotificationBar(context, notification)
-        val isDark = false
-        var art: Bitmap? = songInfo?.coverBitmap
+        val isDark = colorUtils.isDarkNotificationBar(context, notification)
+        val art: Bitmap? = songInfo?.coverBitmap
         val artistName = songInfo?.artist ?: ""
         val songName = songInfo?.songName ?: ""
+        "当前图片$art".printLog()
         //设置文字内容
         remoteView?.setTextViewText(ID_TXT_NOTIFY_SONGNAME.getResId(), songName)
         remoteView?.setTextViewText(ID_TXT_NOTIFY_ARTISTNAME.getResId(), artistName)
@@ -425,24 +427,13 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         disablePreviousBtn(hasPreSong, isDark)
         //封面
         var fetchArtUrl: String? = null
-        "歌曲信息${songInfo?.songName}".printLog()
-        "歌曲信息${songInfo?.songUrl}".printLog()
-        "歌曲信息${songInfo?.songCover}".printLog()
-        "歌曲信息${songInfo?.artist}".printLog()
-       /* if (art == null) {
+        if (art == null){
             fetchArtUrl = songInfo?.songCover
-            if (fetchArtUrl.isNullOrEmpty()) {
-                art = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
-            }
-        }*/
-        fetchArtUrl = songInfo?.songCover
-        art = BitmapFactory.decodeResource(context.resources, R.drawable.default_art)
-        if (art != null) {
+        }else{
             remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
             bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
         }
         notificationManager?.notify(NOTIFICATION_ID, notification)
-
         if (!fetchArtUrl.isNullOrEmpty()) {
             fetchBitmapFromURLAsync(fetchArtUrl, notification)
         }
@@ -453,7 +444,11 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
      */
     private fun fetchBitmapFromURLAsync(fetchArtUrl: String, notification: Notification?) {
         "加载图片网址$fetchArtUrl".printLog()
-        Glide.with(context).asBitmap().load(fetchArtUrl).into(object : CustomTarget<Bitmap?>(){
+        Glide.with(context).asBitmap().load(fetchArtUrl)
+            .apply(RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .transform(RoundedCorners(12)))
+            .into(object : CustomTarget<Bitmap?>(){
             override fun onResourceReady(bitmap: Bitmap, transition: Transition<in Bitmap?>?) {
                 remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), bitmap)
                 bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), bitmap)
@@ -465,22 +460,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             }
 
         })
-        StarrySky.getPlayerCache()?.printLog()
-       /* StarrySky.getImageLoader()?.load(fetchArtUrl, object : ImageLoaderCallBack {
-            override fun onBitmapLoaded(bitmap: Bitmap?) {
-                bitmap?.let {
-                    remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), it)
-                    bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), it)
-                    //https://github.com/EspoirX/StarrySky/issues/188
-                    if (mNotification != null) {
-                        notificationManager?.notify(NOTIFICATION_ID, notification)
-                    }
-                }
-            }
-
-            override fun onBitmapFailed(errorDrawable: Drawable?) {
-            }
-        })*/
     }
 
     /**
@@ -528,7 +507,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 filter.addAction(ACTION_PLAY)
                 filter.addAction(ACTION_PREV)
                 filter.addAction(ACTION_PLAY_OR_PAUSE)
-                filter.addAction(ACTION_CLOSE)
                 context.registerReceiver(this, filter)
                 "notification是否为空${notification.channelId}".printLog()
                 "context内容:${context.packageName}".printLog()
