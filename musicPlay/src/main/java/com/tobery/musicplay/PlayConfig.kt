@@ -1,9 +1,10 @@
 package com.tobery.musicplay
 
-import android.content.Context
+import android.os.Bundle
 import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.NotificationConfig
-import com.lzx.starrysky.notification.NotificationManager
+import com.tobery.musicplay.MusicNotificationManager.Companion.CUSTOM_NOTIFICATION_FACTORY
+
 
 data class PlayConfig(
     val defaultNotificationSwitch: Boolean = true, //通知栏开关
@@ -14,18 +15,20 @@ data class PlayConfig(
     val isAutoManagerFocus: Boolean = false, //是否自动处理焦点
     val defaultImageLoader: GlideImageLoader = GlideImageLoader(), //默认glide框架
     val defaultPermissionIntercept: PermissionInterceptor = PermissionInterceptor(),
-    val notificationClass: String = "com.tobery.personalmusic.ui.song.CurrentSongPlayActivity",
-    val factory: NotificationManager.NotificationFactory = DEFAULT_CUSTOM_NOTIFICATION_FACTORY
-){
-    companion object{
-        val DEFAULT_CUSTOM_NOTIFICATION_FACTORY: NotificationManager.NotificationFactory = object :
-            NotificationManager.NotificationFactory {
-            override fun build(
-                context: Context, config: NotificationConfig?
-            ): INotification {
-                return DefaultCustomNotification(context, config!!)
-              //  return if (config == null) CustomNotification(context) else DefaultCustomNotification(context, config)
-            }
+    val notificationClass: String = "com.tobery.app.MainActivity",
+    val factory: MusicNotificationManager.NotificationFactory = CUSTOM_NOTIFICATION_FACTORY,
+    val defaultNotificationConfig: MusicNotificationConfig = MusicNotificationConfig.create {
+        targetClass { "com.tobery.musicplay.NotificationReceiver" }
+        targetClassBundle {
+            val bundle = Bundle()
+            bundle.putString("title", "我是点击通知栏转跳带的参数")
+            bundle.putString("targetClass", notificationClass)
+            //参数自带当前音频播放信息，不用自己传
+            return@targetClassBundle bundle
         }
+        smallIconRes {
+            1
+        }
+        pendingIntentMode { NotificationConfig.MODE_BROADCAST }
     }
-}
+)

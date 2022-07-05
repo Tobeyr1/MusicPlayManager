@@ -36,21 +36,13 @@ public class JavaActivity extends AppCompatActivity {
         checks = new PermissionChecks(this);
         checks.requestPermissions(APP_PERMISSIONS, it ->{
             if (it){
-                MusicPlay.initConfig(this,new PlayConfig());
+               // MusicPlay.initConfig(this,new PlayConfig());
             }else {
 
             }
             return null;
         });
         findViewById(R.id.bt_one).setOnClickListener(v -> {
-            MusicPlay.onPlayProgressListener(new OnMusicPlayProgressListener() {
-                @Override
-                public void onPlayProgress(long currPos, long duration) {
-                    ViewExtensionKt.printLog("进入监听");
-                    //  ViewExtensionKt.printLog("当前进度"+currPos);
-                    //  ViewExtensionKt.printLog("总长度"+duration);
-                }
-            });
 
             MusicInfo songInfo = new MusicInfo();
             songInfo.setSongId("11");
@@ -81,12 +73,14 @@ public class JavaActivity extends AppCompatActivity {
                 }
             });
 
+            MusicPlay.onPlayProgressListener(this, new OnMusicPlayProgressListener() {
+                @Override
+                public void onPlayProgress(long currPos, long duration) {
+                    ViewExtensionKt.printLog("当前进度"+currPos);
+                }
+            });
+
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        MusicPlay.stopMusic();
-    }
 }

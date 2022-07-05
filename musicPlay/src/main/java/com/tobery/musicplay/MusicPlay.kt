@@ -2,9 +2,10 @@ package com.tobery.musicplay
 
 import android.app.Application
 import android.content.Context
-import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.annotation.FloatRange
 import androidx.lifecycle.LifecycleOwner
+import com.lzx.starrysky.GlobalPlaybackStageListener
 import com.lzx.starrysky.OnPlayProgressListener
 import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
@@ -15,17 +16,7 @@ import java.io.File
 
 object MusicPlay {
 
-    val notificationConfig = NotificationConfig.create {
-        targetClass { "com.tobery.musicplay.NotificationReceiver" }
-        targetClassBundle {
-            val bundle = Bundle()
-            bundle.putString("title", "我是点击通知栏转跳带的参数")
-            bundle.putString("targetClass", "com.tobery.app.JavaActivity")
-            //参数自带当前音频播放信息，不用自己传
-            return@targetClassBundle bundle
-        }
-        pendingIntentMode { NotificationConfig.MODE_BROADCAST }
-    }
+    private var config: PlayConfig? = null
 
     @JvmStatic
     fun initConfig(context: Context,config: PlayConfig = PlayConfig()){
@@ -40,16 +31,18 @@ object MusicPlay {
                //addInterceptor(config.defaultPermissionIntercept)
                setNotificationSwitch(config.defaultNotificationSwitch)
                setNotificationType(config.notificationType)
-               setNotificationConfig(notificationConfig)
+               setNotificationConfig(config.defaultNotificationConfig.convert())
                setNotificationFactory(config.factory)
            }
            .apply()
         setRepeatMode()
+        this.config = config
     }
 
     //进度监听
     @JvmStatic
-    fun onPlayProgressListener(callback: OnMusicPlayProgressListener? = null){
+    fun onPlayProgressListener(activity: ComponentActivity,callback: OnMusicPlayProgressListener? = null){
+        val pkgActivityName = StarrySky.getStackTopActivity()?.toString()
         StarrySky.with().setOnPlayProgressListener(object : OnPlayProgressListener{
             override fun onPlayProgress(currPos: Long, duration: Long) {
                 callback?.onPlayProgress(currPos,duration)
@@ -57,12 +50,22 @@ object MusicPlay {
         })
     }
 
-    //状态监听
+    //局部状态监听
     @JvmStatic
     fun onPlayStateListener(owner: LifecycleOwner, callback: OnMusicPlayStateListener? = null){
         StarrySky.with().playbackState().observe(owner){
             callback?.onPlayState(it.stage)
         }
+    }
+    //全局状态监听
+    @JvmStatic
+    fun setGlobalPlaybackStageListener(callback: OnMusicPlayStateListener? = null){
+        StarrySky.setGlobalPlaybackStageListener(object : GlobalPlaybackStageListener{
+            override fun onPlaybackStageChange(stage: PlaybackStage) {
+                callback?.onPlayState(stage.stage)
+            }
+
+        })
     }
 
     //移动进度
@@ -213,6 +216,34 @@ object MusicPlay {
         StarrySky.openNotification()
     }
 
+    //切换通知栏
+    @JvmStatic
+    fun changeNotification(notificationType: Int){
+        StarrySky.changeNotification(notificationType)
+    }
+
+    //获取通知栏类型
+    @JvmStatic
+    fun getNotificationType(): Int = StarrySky.getNotificationType()
+
+    //获取缓存类
+    @JvmStatic
+    fun getPlayerCache(context: Context): MusicCache{
+        val cache = StarrySky.getPlayerCache()
+        "当前cache配置${config?.cacheFilePath}".printLog()
+        return MusicCache(
+            isOpenCache = cache?.isOpenCache() == true,
+            //todo 获取用户配置的config.cache路径
+            cacheDirectory = cache?.getCacheDirectory(context, config?.cacheFilePath).toString()
+        )
+    }
+
+    //对象类全置空
+    @JvmStatic
+    fun release(){
+        StarrySky.release()
+    }
+
     private fun SongInfo.convert(): MusicInfo{
         return MusicInfo(
             songId = this.songId,
@@ -237,6 +268,24 @@ object MusicPlay {
             this.decode,
             this.headData
         )
+    }
+
+    private fun MusicNotificationConfig.convert(): NotificationConfig{
+        val targetClass = this.targetClass
+        val targetBundle = this.targetClassBundle
+        val pendingIntentMode = this.pendingIntentMode
+        return NotificationConfig.create {
+            targetClass { targetClass }
+            targetClassBundle {
+
+                //参数自带当前音频播放信息，不用自己传
+                return@targetClassBundle targetBundle
+            }
+            smallIconRes {
+                this.smallIconRes
+            }
+            pendingIntentMode { pendingIntentMode }
+        }
     }
 
 }
