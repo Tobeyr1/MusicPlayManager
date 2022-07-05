@@ -1,12 +1,9 @@
 package com.tobery.musicplay
 
 import android.content.Context
-import com.lzx.starrysky.notification.CustomNotification
 import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.NotificationConfig
 import com.lzx.starrysky.notification.NotificationManager
-import com.tobery.musicplay.GlideImageLoader
-import com.tobery.musicplay.PermissionInterceptor
 
 data class PlayConfig(
     val defaultNotificationSwitch: Boolean = true, //通知栏开关

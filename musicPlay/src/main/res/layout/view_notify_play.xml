@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
+    android:padding="5dp"
     android:orientation="horizontal">
 
     <ImageView
@@ -10,7 +11,7 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="center_vertical"
-        android:adjustViewBounds="true"
+        android:src="@drawable/default_art"
         android:scaleType="fitXY" />
 
     <LinearLayout
@@ -20,7 +21,8 @@
         android:layout_gravity="center"
         android:layout_weight="1.0"
         android:orientation="vertical"
-        android:paddingLeft="13.0dp"
+        android:paddingStart="13.0dp"
+        android:paddingEnd="0dp"
         android:paddingTop="2.0dp"
         android:paddingBottom="2.0dp">
 
@@ -72,7 +74,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
-            android:layout_toRightOf="@+id/img_notifyPre"
+            android:layout_toEndOf="@+id/img_notifyPre"
             android:contentDescription="@null"
             android:scaleType="fitXY"
             android:src="@drawable/notify_btn_light_play_normal" />
@@ -82,7 +84,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginTop="5dp"
-            android:layout_toRightOf="@+id/img_notifyPlayOrPause"
+            android:layout_toEndOf="@+id/img_notifyPlayOrPause"
             android:adjustViewBounds="true"
             android:contentDescription="@null"
             android:padding="8dp"

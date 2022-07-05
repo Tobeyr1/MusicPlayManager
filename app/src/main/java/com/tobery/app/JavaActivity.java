@@ -1,13 +1,18 @@
 package com.tobery.app;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.os.Bundle;
 import com.tobery.musicplay.MusicPlay;
+import com.tobery.musicplay.OnMusicPlayProgressListener;
+import com.tobery.musicplay.OnMusicPlayStateListener;
 import com.tobery.musicplay.PermissionChecks;
 import com.tobery.musicplay.PlayConfig;
 import com.tobery.musicplay.MusicInfo;
+import com.tobery.musicplay.PlayManger;
+import com.tobery.musicplay.ViewExtensionKt;
 
 import java.util.ArrayList;
 
@@ -38,22 +43,50 @@ public class JavaActivity extends AppCompatActivity {
             return null;
         });
         findViewById(R.id.bt_one).setOnClickListener(v -> {
-          //  http://p1.music.126.net/kPDkBh_W3DmDKJZCUeFCrA==/19138099393621521.jpg
+            MusicPlay.onPlayProgressListener(new OnMusicPlayProgressListener() {
+                @Override
+                public void onPlayProgress(long currPos, long duration) {
+                    ViewExtensionKt.printLog("进入监听");
+                    //  ViewExtensionKt.printLog("当前进度"+currPos);
+                    //  ViewExtensionKt.printLog("总长度"+duration);
+                }
+            });
+
             MusicInfo songInfo = new MusicInfo();
             songInfo.setSongId("11");
             songInfo.setSongUrl("http://music.163.com/song/media/outer/url?id=33894312");
             songInfo.setArtist("歌手");
             songInfo.setSongName("海阔天空");
-            songInfo.setSongCover("http://p1.music.126.net/kPDkBh_W3DmDKJZCUeFCrA==/19138099393621521.jpg");
+            songInfo.setSongCover("http://p3.music.126.net/Uyj-KRGb9ZnwuPLYEe739Q==/109951167614293336.jpg");
             MusicPlay.playMusicByInfo(songInfo);
-           // MusicPlay.playMusicByUrl("http://music.163.com/song/media/outer/url?id=33894312");
-           // StarrySky.with().playMusicByUrl("http://music.163.com/song/media/outer/url?id=33894312");
+
+            MusicPlay.onPlayStateListener(this, new OnMusicPlayStateListener() {
+
+                @Override
+                public void onPlayState(@NonNull String playbackStage) {
+                    switch (playbackStage){
+                        case PlayManger.IDLE:
+                            ViewExtensionKt.printLog("空闲");
+                            break;
+                        case PlayManger.PLAYING:
+                            ViewExtensionKt.printLog("播放");
+                            break;
+                        case PlayManger.BUFFERING:
+                            ViewExtensionKt.printLog("缓冲");
+                            break;
+                        case PlayManger.PAUSE:
+                            ViewExtensionKt.printLog("暂停");
+                            break;
+                    }
+                }
+            });
+
         });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-       // MusicPlay.stopMusic();
+        MusicPlay.stopMusic();
     }
 }

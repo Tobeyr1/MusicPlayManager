@@ -1,6 +1,5 @@
 package com.tobery.musicplay
 
-import com.lzx.starrysky.manager.PlaybackStage
 
 abstract class OnMusicPlayProgressListener{
 
@@ -9,5 +8,5 @@ abstract class OnMusicPlayProgressListener{
 
 abstract class OnMusicPlayStateListener{
 
-    abstract fun onPlayState(playbackStage: PlaybackStage)
+    abstract fun onPlayState(playbackStage: String)
 }
