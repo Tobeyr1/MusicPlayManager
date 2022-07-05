@@ -84,9 +84,4 @@ public class JavaActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        MusicPlay.stopMusic();
-    }
 }

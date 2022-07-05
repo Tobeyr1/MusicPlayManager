@@ -2,30 +2,16 @@ package com.tobery.musicplay
 
 import android.app.Application
 import android.content.Context
-import android.os.Bundle
 import androidx.annotation.FloatRange
 import androidx.lifecycle.LifecycleOwner
 import com.lzx.starrysky.OnPlayProgressListener
 import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
-import com.lzx.starrysky.manager.PlaybackStage
-import com.lzx.starrysky.notification.NotificationConfig
 import com.tobery.musicplay.SpConstant.REPEAT_MODE_NONE
 import java.io.File
 
 object MusicPlay {
 
-    val notificationConfig = NotificationConfig.create {
-        targetClass { "com.tobery.musicplay.NotificationReceiver" }
-        targetClassBundle {
-            val bundle = Bundle()
-            bundle.putString("title", "我是点击通知栏转跳带的参数")
-            bundle.putString("targetClass", "com.tobery.app.JavaActivity")
-            //参数自带当前音频播放信息，不用自己传
-            return@targetClassBundle bundle
-        }
-        pendingIntentMode { NotificationConfig.MODE_BROADCAST }
-    }
 
     @JvmStatic
     fun initConfig(context: Context,config: PlayConfig = PlayConfig()){
@@ -40,7 +26,7 @@ object MusicPlay {
                //addInterceptor(config.defaultPermissionIntercept)
                setNotificationSwitch(config.defaultNotificationSwitch)
                setNotificationType(config.notificationType)
-               setNotificationConfig(notificationConfig)
+               setNotificationConfig(config.defaultNotificationConfig)
                setNotificationFactory(config.factory)
            }
            .apply()

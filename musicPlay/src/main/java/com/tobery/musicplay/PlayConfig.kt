@@ -1,6 +1,7 @@
 package com.tobery.musicplay
 
 import android.content.Context
+import android.os.Bundle
 import com.lzx.starrysky.notification.INotification
 import com.lzx.starrysky.notification.NotificationConfig
 import com.lzx.starrysky.notification.NotificationManager
@@ -14,8 +15,23 @@ data class PlayConfig(
     val isAutoManagerFocus: Boolean = false, //是否自动处理焦点
     val defaultImageLoader: GlideImageLoader = GlideImageLoader(), //默认glide框架
     val defaultPermissionIntercept: PermissionInterceptor = PermissionInterceptor(),
-    val notificationClass: String = "com.tobery.personalmusic.ui.song.CurrentSongPlayActivity",
-    val factory: NotificationManager.NotificationFactory = DEFAULT_CUSTOM_NOTIFICATION_FACTORY
+    val notificationClass: String = "com.tobery.app.MainActivity",
+    //val notificationClass: ObservableField<String> = ObservableField("com.tobery.app.MainActivity"),
+    val factory: NotificationManager.NotificationFactory = DEFAULT_CUSTOM_NOTIFICATION_FACTORY,
+    val defaultNotificationConfig: NotificationConfig = NotificationConfig.create {
+        targetClass { "com.tobery.musicplay.NotificationReceiver" }
+        targetClassBundle {
+            val bundle = Bundle()
+            bundle.putString("title", "我是点击通知栏转跳带的参数")
+            bundle.putString("targetClass", notificationClass)
+            //参数自带当前音频播放信息，不用自己传
+            return@targetClassBundle bundle
+        }
+        smallIconRes {
+            1
+        }
+        pendingIntentMode { NotificationConfig.MODE_BROADCAST }
+    }
 ){
     companion object{
         val DEFAULT_CUSTOM_NOTIFICATION_FACTORY: NotificationManager.NotificationFactory = object :
@@ -23,7 +39,7 @@ data class PlayConfig(
             override fun build(
                 context: Context, config: NotificationConfig?
             ): INotification {
-                return DefaultCustomNotification(context, config!!)
+                return DefaultCustomNotification(context, config)
               //  return if (config == null) CustomNotification(context) else DefaultCustomNotification(context, config)
             }
         }

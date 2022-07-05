@@ -85,7 +85,7 @@ import com.lzx.starrysky.utils.orDef
 
 const val CHANNEL_ID = "com.tobey.musicPlay.MUSIC_CHANNEL_ID"
 const val NOTIFICATION_ID = 413
-class DefaultCustomNotification constructor(val context: Context,var config: NotificationConfig = NotificationConfig.Builder().build()): BroadcastReceiver(),INotification {
+class DefaultCustomNotification constructor(val context: Context,var config: NotificationConfig? = NotificationConfig.Builder().build()): BroadcastReceiver(),INotification {
 
     companion object {
         const val ACTION_UPDATE_FAVORITE = "ACTION_UPDATE_FAVORITE"
@@ -131,15 +131,15 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         notificationManager = context.getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
         packageName = context.applicationContext.packageName
         colorUtils = NotificationColorUtils()
-        playOrPauseIntent = config.playOrPauseIntent ?: ACTION_PLAY_OR_PAUSE.getPendingIntent()
-        playIntent = config.playIntent ?: ACTION_PLAY.getPendingIntent()
-        pauseIntent = config.pauseIntent ?: ACTION_PAUSE.getPendingIntent()
-        stopIntent = config.stopIntent ?: ACTION_STOP.getPendingIntent()
-        nextIntent = config.nextIntent ?: ACTION_NEXT.getPendingIntent()
-        previousIntent = config.preIntent ?: ACTION_PREV.getPendingIntent()
-        favoriteIntent = config.favoriteIntent ?: ACTION_FAVORITE.getPendingIntent()
-        lyricsIntent = config.lyricsIntent ?: ACTION_LYRICS.getPendingIntent()
-        downloadIntent = config.downloadIntent ?: ACTION_DOWNLOAD.getPendingIntent()
+        playOrPauseIntent = config?.playOrPauseIntent ?: ACTION_PLAY_OR_PAUSE.getPendingIntent()
+        playIntent = config?.playIntent ?: ACTION_PLAY.getPendingIntent()
+        pauseIntent = config?.pauseIntent ?: ACTION_PAUSE.getPendingIntent()
+        stopIntent = config?.stopIntent ?: ACTION_STOP.getPendingIntent()
+        nextIntent = config?.nextIntent ?: ACTION_NEXT.getPendingIntent()
+        previousIntent = config?.preIntent ?: ACTION_PREV.getPendingIntent()
+        favoriteIntent = config?.favoriteIntent ?: ACTION_FAVORITE.getPendingIntent()
+        lyricsIntent = config?.lyricsIntent ?: ACTION_LYRICS.getPendingIntent()
+        downloadIntent = config?.downloadIntent ?: ACTION_DOWNLOAD.getPendingIntent()
         notificationManager.cancelAll()
     }
 
@@ -225,7 +225,9 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             return null
         }
         "开始创建通知".printLog()
-        val smallIcon = if (config.smallIconRes != -1) config.smallIconRes else R.drawable.ic_notification
+        //todo 添加用户自定义icon
+        val smallIcon = if (config?.smallIconRes != -1) R.drawable.ic_notification else R.drawable.ic_notification
+        //val smallIcon = if (config?.smallIconRes != -1) config?.smallIconRes else R.drawable.ic_notification
         //适配8.0
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(context, notificationManager!!)
@@ -239,11 +241,11 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             .setContentText(songInfo?.artist) //艺术家
             .setPriority(NotificationCompat.PRIORITY_HIGH)
         //setContentIntent
-        val clazz = config.targetClass.getTargetClass()
+        val clazz = config?.targetClass.getTargetClass()
         "当前clazz${clazz?.name}".printLog()
         "当前上下文${context.applicationContext}".printLog()
         clazz?.let {
-            val intent = createContentIntent(context, config, songInfo, config.targetClassBundle, it)
+            val intent = createContentIntent(context, config, songInfo, config?.targetClassBundle, it)
             notificationBuilder.setContentIntent(intent)
         }
         //这里不能复用，会导致内存泄漏，需要每次都创建
@@ -304,7 +306,8 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         //构建 Intent
         val openUI = Intent(context, targetClass)
 //        openUI.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        openUI.putExtra("notification_entry", INotification.ACTION_INTENT_CLICK)
+        //todo 不需要这个值
+       // openUI.putExtra("notification_entry", INotification.ACTION_INTENT_CLICK)
         "openUI内容$openUI".printLog()
         songInfo?.let {
             openUI.putExtra("songInfo", it)
@@ -316,23 +319,9 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         @SuppressLint("WrongConstant")
         val pendingIntent: PendingIntent
         val requestCode = INotification.REQUEST_CODE
-        val flags = PendingIntent.FLAG_CANCEL_CURRENT
-        val pi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            PendingIntent.getActivity(
-                context,
-                requestCode,
-                openUI,
-                PendingIntent.FLAG_IMMUTABLE
-            )
-        } else {
-            PendingIntent.getActivity(
-                context,
-                requestCode,
-                openUI,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        }
-       /* pendingIntent = when (config?.pendingIntentMode) {
+        //val flags = PendingIntent.FLAG_CANCEL_CURRENT
+        val flags =if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+        pendingIntent = when (config?.pendingIntentMode) {
             NotificationConfig.MODE_ACTIVITY -> {
                 PendingIntent.getActivity(context, requestCode, openUI, flags)
             }
@@ -343,8 +332,8 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 PendingIntent.getService(context, requestCode, openUI, flags)
             }
             else -> PendingIntent.getActivity(context, requestCode, openUI, flags)
-        }*/
-        return pi
+        }
+        return pendingIntent
     }
 
     /**
@@ -444,10 +433,9 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
      */
     private fun fetchBitmapFromURLAsync(fetchArtUrl: String, notification: Notification?) {
         "加载图片网址$fetchArtUrl".printLog()
+        //todo 解决图片圆角问题
         Glide.with(context).asBitmap().load(fetchArtUrl)
-            .apply(RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .transform(RoundedCorners(12)))
+            .apply(option)
             .into(object : CustomTarget<Bitmap?>(){
             override fun onResourceReady(bitmap: Bitmap, transition: Transition<in Bitmap?>?) {
                 remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), bitmap)
