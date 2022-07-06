@@ -8,5 +8,5 @@ abstract class OnMusicPlayProgressListener{
 
 abstract class OnMusicPlayStateListener{
 
-    abstract fun onPlayState(playbackStage: String)
+    abstract fun onPlayState(playbackStage: PlayManger)
 }

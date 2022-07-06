@@ -42,7 +42,6 @@ object MusicPlay {
     //进度监听
     @JvmStatic
     fun onPlayProgressListener(activity: ComponentActivity,callback: OnMusicPlayProgressListener? = null){
-        val pkgActivityName = StarrySky.getStackTopActivity()?.toString()
         StarrySky.with().setOnPlayProgressListener(object : OnPlayProgressListener{
             override fun onPlayProgress(currPos: Long, duration: Long) {
                 callback?.onPlayProgress(currPos,duration)
@@ -54,7 +53,7 @@ object MusicPlay {
     @JvmStatic
     fun onPlayStateListener(owner: LifecycleOwner, callback: OnMusicPlayStateListener? = null){
         StarrySky.with().playbackState().observe(owner){
-            callback?.onPlayState(it.stage)
+            callback?.onPlayState(it.revert())
         }
     }
     //全局状态监听
@@ -62,7 +61,7 @@ object MusicPlay {
     fun setGlobalPlaybackStageListener(callback: OnMusicPlayStateListener? = null){
         StarrySky.setGlobalPlaybackStageListener(object : GlobalPlaybackStageListener{
             override fun onPlaybackStageChange(stage: PlaybackStage) {
-                callback?.onPlayState(stage.stage)
+                callback?.onPlayState(stage.revert())
             }
 
         })
@@ -70,8 +69,8 @@ object MusicPlay {
 
     //移动进度
     @JvmStatic
-    fun seekTo(progress: Long){
-        StarrySky.with().seekTo(progress,true)
+    fun seekTo(progress: Long,isPlayWhenPaused: Boolean = true){
+        StarrySky.with().seekTo(progress,isPlayWhenPaused)
     }
 
     //获取速度 1为正常播放
@@ -106,11 +105,19 @@ object MusicPlay {
         StarrySky.with().skipToNext()
     }
 
+    //是否有下一首
+    @JvmStatic
+    fun isSkipToNextEnabled(): Boolean = StarrySky.with().isSkipToNextEnabled()
+
     //上一首
     @JvmStatic
     fun skipToPrevious(){
         StarrySky.with().skipToPrevious()
     }
+
+    //是否有上一首
+    @JvmStatic
+    fun isSkipToPreviousEnabled(): Boolean = StarrySky.with().isSkipToPreviousEnabled()
 
     //播放 by id
     @JvmStatic
@@ -131,6 +138,7 @@ object MusicPlay {
     }
 
     //播放列表以及对应歌曲的下标
+    //todo 增加播放列表
     @JvmStatic
     fun playMusicByList(mediaList: MutableList<MusicInfo>, index: Int = 0){
         StarrySky.with().playMusic(mediaList.map { it.revert() }.toMutableList(),index)
@@ -188,6 +196,22 @@ object MusicPlay {
     @JvmStatic
     fun getNowPlayingSongInfo(): MusicInfo? = StarrySky.with().getNowPlayingSongInfo()?.convert()
 
+    //获取当前播放的歌曲songId
+    @JvmStatic
+    fun getNowPlayingSongId(): String = StarrySky.with().getNowPlayingSongId()
+
+    //获取当前播放的歌曲url
+    @JvmStatic
+    fun getNowPlayingSongUrl(): String = StarrySky.with().getNowPlayingSongUrl()
+
+    //获取当前播放歌曲的下标
+    @JvmStatic
+    fun getNowPlayingIndex(): Int = StarrySky.with().getNowPlayingIndex()
+
+    //以ms为单位获取当前缓冲的位置。
+    @JvmStatic
+    fun getBufferedPosition(): Long = StarrySky.with().getBufferedPosition()
+
     //获取播放队列
     @JvmStatic
     fun getPlayList():MutableList<MusicInfo> = StarrySky.with().getPlayList().map { it.convert() }.toMutableList()
@@ -196,6 +220,42 @@ object MusicPlay {
     @JvmStatic
     fun updatePlayList(list: MutableList<MusicInfo>){
         StarrySky.with().updatePlayList(list.map { it.revert() }.toMutableList())
+    }
+
+    //添加更多播放列表
+    @JvmStatic
+    fun addPlayList(musicList: MutableList<MusicInfo>){
+        StarrySky.with().addPlayList(musicList.map { it.revert() }.toMutableList())
+    }
+
+    //添加一首歌
+    @JvmStatic
+    fun addSongInfo(musicInfo: MusicInfo){
+        StarrySky.with().addSongInfo(musicInfo.revert())
+    }
+
+    //添加一首歌,指定位置
+    @JvmStatic
+    fun addSongInfo(musicInfo: MusicInfo,index: Int){
+        StarrySky.with().addSongInfo(index,musicInfo.revert())
+    }
+
+    //清除播放列表
+    @JvmStatic
+    fun clearPlayList(){
+        StarrySky.with().clearPlayList()
+    }
+
+    //刷新随机列表
+    @JvmStatic
+    fun updateShuffleSongList(){
+        StarrySky.with().updateShuffleSongList()
+    }
+
+    //根据当前信息更新下标
+    @JvmStatic
+    fun updateCurrIndex(){
+        StarrySky.with().updateCurrIndex()
     }
 
     //根据id移除
@@ -286,6 +346,16 @@ object MusicPlay {
             }
             pendingIntentMode { pendingIntentMode }
         }
+    }
+
+    private fun PlaybackStage.revert(): PlayManger{
+        return PlayManger(
+            lastSongInfo = this.lastSongInfo?.convert(),
+            songInfo = this.songInfo?.convert(),
+            isStop = this.isStop,
+            errorMsg = this.errorMsg,
+            stage = this.stage
+        )
     }
 
 }
