@@ -20,6 +20,8 @@ public class JavaActivity extends AppCompatActivity {
 
     PermissionChecks checks;
 
+    ArrayList<MusicInfo> songList = new ArrayList<>();
+
     private final String[] APP_PERMISSIONS = new ArrayList<String>(){
         {
             add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -50,13 +52,20 @@ public class JavaActivity extends AppCompatActivity {
             songInfo.setArtist("歌手");
             songInfo.setSongName("海阔天空");
             songInfo.setSongCover("http://p3.music.126.net/Uyj-KRGb9ZnwuPLYEe739Q==/109951167614293336.jpg");
-            MusicPlay.playMusicByInfo(songInfo);
+           // MusicPlay.playMusicByInfo(songInfo);
+            songList.add(songInfo);
+            MusicInfo songInfo1 = new MusicInfo();
+            songInfo1.setSongId("22");
+            songInfo1.setSongUrl("http://m8.music.126.net/20220706153844/41cc70c399540e0ff8cf639114e157ce/ymusic/9429/7fbc/3727/d0647c73bcc77006b94ce6ad9ae620f7.flac");
+            songInfo1.setArtist("SHINee");
+            songInfo1.setSongName("누난 너무 예뻐 (Replay)");
+            songInfo1.setSongCover("http://p4.music.126.net/YG0CmRSmeIOGa7REEceCWA==/910395627822214.jpg");
+            MusicPlay.playMusicByList(songList,0);
 
             MusicPlay.onPlayStateListener(this, new OnMusicPlayStateListener() {
-
                 @Override
-                public void onPlayState(@NonNull String playbackStage) {
-                    switch (playbackStage){
+                public void onPlayState(@NonNull PlayManger playbackStage) {
+                    switch (playbackStage.getStage()){
                         case PlayManger.IDLE:
                             ViewExtensionKt.printLog("空闲");
                             break;
@@ -69,6 +78,9 @@ public class JavaActivity extends AppCompatActivity {
                         case PlayManger.PAUSE:
                             ViewExtensionKt.printLog("暂停");
                             break;
+                        case PlayManger.SWITCH:
+                            ViewExtensionKt.printLog("切歌"+playbackStage.getSongInfo().getSongUrl());
+                            break;
                     }
                 }
             });
@@ -76,7 +88,7 @@ public class JavaActivity extends AppCompatActivity {
             MusicPlay.onPlayProgressListener(this, new OnMusicPlayProgressListener() {
                 @Override
                 public void onPlayProgress(long currPos, long duration) {
-                    ViewExtensionKt.printLog("当前进度"+currPos);
+                   // ViewExtensionKt.printLog("当前进度"+currPos);
                 }
             });
 

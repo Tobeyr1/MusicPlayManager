@@ -412,6 +412,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             isDark.getResDrawableByDark(DRAWABLE_NOTIFY_BTN_DARK_DOWNLOAD, DRAWABLE_NOTIFY_BTN_LIGHT_DOWNLOAD)
         )
         //上一首下一首按钮
+        "是否有下一首$hasNextSong".printLog()
         disableNextBtn(hasNextSong, isDark)
         disablePreviousBtn(hasPreSong, isDark)
         //封面
