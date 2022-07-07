@@ -41,7 +41,7 @@ object MusicPlay {
 
     //进度监听
     @JvmStatic
-    fun onPlayProgressListener(activity: ComponentActivity,callback: OnMusicPlayProgressListener? = null){
+    fun onPlayProgressListener(callback: OnMusicPlayProgressListener? = null){
         StarrySky.with().setOnPlayProgressListener(object : OnPlayProgressListener{
             override fun onPlayProgress(currPos: Long, duration: Long) {
                 callback?.onPlayProgress(currPos,duration)
@@ -349,12 +349,13 @@ object MusicPlay {
     }
 
     private fun PlaybackStage.revert(): PlayManger{
+        val state = this@revert
         return PlayManger(
-            lastSongInfo = this.lastSongInfo?.convert(),
-            songInfo = this.songInfo?.convert(),
-            isStop = this.isStop,
-            errorMsg = this.errorMsg,
-            stage = this.stage
+            lastSongInfo = state.lastSongInfo?.convert(),
+            songInfo = state.songInfo?.convert(),
+            isStop = state.isStop,
+            errorMsg = state.errorMsg,
+            stage = state.stage
         )
     }
 
