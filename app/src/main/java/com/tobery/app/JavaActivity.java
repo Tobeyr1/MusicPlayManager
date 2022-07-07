@@ -63,6 +63,7 @@ public class JavaActivity extends AppCompatActivity {
             MusicPlay.playMusicByList(songList,0);
 
             MusicPlay.onPlayStateListener(this, new OnMusicPlayStateListener() {
+
                 @Override
                 public void onPlayState(@NonNull PlayManger playbackStage) {
                     switch (playbackStage.getStage()){
@@ -85,7 +86,7 @@ public class JavaActivity extends AppCompatActivity {
                 }
             });
 
-            MusicPlay.onPlayProgressListener(this, new OnMusicPlayProgressListener() {
+            MusicPlay.onPlayProgressListener( new OnMusicPlayProgressListener() {
                 @Override
                 public void onPlayProgress(long currPos, long duration) {
                    // ViewExtensionKt.printLog("当前进度"+currPos);
