@@ -8,11 +8,11 @@ import android.os.Bundle;
 import com.tobery.musicplay.MusicPlay;
 import com.tobery.musicplay.OnMusicPlayProgressListener;
 import com.tobery.musicplay.OnMusicPlayStateListener;
-import com.tobery.musicplay.PermissionChecks;
+import com.tobery.musicplay.entity.MusicInfo;
 import com.tobery.musicplay.PlayConfig;
-import com.tobery.musicplay.MusicInfo;
-import com.tobery.musicplay.PlayManger;
-import com.tobery.musicplay.ViewExtensionKt;
+import com.tobery.musicplay.entity.PlayManger;
+import com.tobery.musicplay.util.PermissionChecks;
+import com.tobery.musicplay.util.ViewExtensionKt;
 
 import java.util.ArrayList;
 
@@ -36,30 +36,46 @@ public class JavaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_java);
         checks = new PermissionChecks(this);
+        PlayConfig playConfig = new PlayConfig(
+
+        );
         checks.requestPermissions(APP_PERMISSIONS, it ->{
             if (it){
-               // MusicPlay.initConfig(this,new PlayConfig());
+              //  MusicPlay.initConfig(this,new PlayConfig());
             }else {
 
             }
             return null;
         });
-        findViewById(R.id.bt_one).setOnClickListener(v -> {
-
+        ViewExtensionKt.setOnSingleClickListener(findViewById(R.id.bt_one), view -> {
             MusicInfo songInfo = new MusicInfo();
-            songInfo.setSongId("11");
+            songInfo.setSongId("33894312");
             songInfo.setSongUrl("http://music.163.com/song/media/outer/url?id=33894312");
             songInfo.setArtist("歌手");
             songInfo.setSongName("海阔天空");
             songInfo.setSongCover("http://p3.music.126.net/Uyj-KRGb9ZnwuPLYEe739Q==/109951167614293336.jpg");
-           // MusicPlay.playMusicByInfo(songInfo);
             songList.add(songInfo);
             MusicInfo songInfo1 = new MusicInfo();
-            songInfo1.setSongId("22");
-            songInfo1.setSongUrl("http://m8.music.126.net/20220706153844/41cc70c399540e0ff8cf639114e157ce/ymusic/9429/7fbc/3727/d0647c73bcc77006b94ce6ad9ae620f7.flac");
-            songInfo1.setArtist("SHINee");
-            songInfo1.setSongName("누난 너무 예뻐 (Replay)");
-            songInfo1.setSongCover("http://p4.music.126.net/YG0CmRSmeIOGa7REEceCWA==/910395627822214.jpg");
+            songInfo1.setSongId("1960605228");
+            songInfo1.setSongUrl("http://music.163.com/song/media/outer/url?id=1960605228");
+            songInfo1.setArtist("龚明威");
+            songInfo1.setSongName("起风了");
+            songInfo1.setSongCover("http://p3.music.126.net/EI-1VBiCIJ7lF9R7sxFNJA==/109951167611502432.jpg");
+            songList.add(songInfo1);
+            MusicInfo songInfo2 = new MusicInfo();
+            songInfo2.setSongId("1960903012");
+            songInfo2.setSongName("黑本子（Black Benz）");
+            songInfo2.setSongUrl("http://music.163.com/song/media/outer/url?id=1960903012");
+            songInfo2.setArtist("KEY.L刘聪");
+            songInfo2.setSongCover("http://p4.music.126.net/yRqakJ-0o6ZN6T-CaU4XvA==/109951167619824931.jpg");
+            songList.add(songInfo2);
+            MusicInfo songInfo3 = new MusicInfo();
+            songInfo3.setSongId("3727");
+            songInfo3.setArtist("flc");
+            songInfo3.setSongName("测试");
+            songInfo3.setSongUrl("http://m8.music.126.net/20220706153844/41cc70c399540e0ff8cf639114e157ce/ymusic/9429/7fbc/3727/d0647c73bcc77006b94ce6ad9ae620f7.flac");
+            songInfo3.setSongCover("http://p3.music.126.net/EI-1VBiCIJ7lF9R7sxFNJA==/109951167611502432.jpg");
+            songList.add(songInfo3);
             MusicPlay.playMusicByList(songList,0);
 
             MusicPlay.onPlayStateListener(this, new OnMusicPlayStateListener() {
@@ -81,6 +97,7 @@ public class JavaActivity extends AppCompatActivity {
                             break;
                         case PlayManger.SWITCH:
                             ViewExtensionKt.printLog("切歌"+playbackStage.getSongInfo().getSongUrl());
+                            ViewExtensionKt.printLog("上一首"+playbackStage.getLastSongInfo().getSongName());
                             break;
                     }
                 }
@@ -89,11 +106,16 @@ public class JavaActivity extends AppCompatActivity {
             MusicPlay.onPlayProgressListener( new OnMusicPlayProgressListener() {
                 @Override
                 public void onPlayProgress(long currPos, long duration) {
-                   // ViewExtensionKt.printLog("当前进度"+currPos);
+                    // ViewExtensionKt.printLog("当前进度"+currPos);
                 }
             });
-
+            return  null;
         });
+      /*  findViewById(R.id.bt_one).setOnClickListener(v -> {
+            //http://m8.music.126.net/20220706153844/41cc70c399540e0ff8cf639114e157ce/ymusic/9429/7fbc/3727/d0647c73bcc77006b94ce6ad9ae620f7.flac
+
+
+        });*/
     }
 
 }

@@ -1,4 +1,4 @@
-package com.tobery.musicplay
+package com.tobery.musicplay.notification
 
 import android.app.PendingIntent
 import android.os.Bundle

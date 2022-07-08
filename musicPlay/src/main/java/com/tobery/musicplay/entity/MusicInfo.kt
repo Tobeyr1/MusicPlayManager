@@ -1,4 +1,4 @@
-package com.tobery.musicplay
+package com.tobery.musicplay.entity
 
 import android.graphics.Bitmap
 import android.os.Parcelable

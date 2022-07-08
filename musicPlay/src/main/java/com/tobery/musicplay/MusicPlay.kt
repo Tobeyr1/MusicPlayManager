@@ -2,7 +2,6 @@ package com.tobery.musicplay
 
 import android.app.Application
 import android.content.Context
-import androidx.activity.ComponentActivity
 import androidx.annotation.FloatRange
 import androidx.lifecycle.LifecycleOwner
 import com.lzx.starrysky.GlobalPlaybackStageListener
@@ -11,7 +10,13 @@ import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
 import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.NotificationConfig
+import com.tobery.musicplay.MusicPlay.convert
 import com.tobery.musicplay.SpConstant.REPEAT_MODE_NONE
+import com.tobery.musicplay.entity.MusicCache
+import com.tobery.musicplay.entity.MusicInfo
+import com.tobery.musicplay.entity.PlayManger
+import com.tobery.musicplay.notification.MusicNotificationConfig
+import com.tobery.musicplay.util.printLog
 import java.io.File
 
 object MusicPlay {
@@ -236,7 +241,7 @@ object MusicPlay {
 
     //添加一首歌,指定位置
     @JvmStatic
-    fun addSongInfo(musicInfo: MusicInfo,index: Int){
+    fun addSongInfo(musicInfo: MusicInfo, index: Int){
         StarrySky.with().addSongInfo(index,musicInfo.revert())
     }
 
@@ -288,7 +293,7 @@ object MusicPlay {
 
     //获取缓存类
     @JvmStatic
-    fun getPlayerCache(context: Context): MusicCache{
+    fun getPlayerCache(context: Context): MusicCache {
         val cache = StarrySky.getPlayerCache()
         "当前cache配置${config?.cacheFilePath}".printLog()
         return MusicCache(
@@ -304,7 +309,7 @@ object MusicPlay {
         StarrySky.release()
     }
 
-    private fun SongInfo.convert(): MusicInfo{
+    private fun SongInfo.convert(): MusicInfo {
         return MusicInfo(
             songId = this.songId,
             songUrl = this.songUrl,
@@ -331,24 +336,34 @@ object MusicPlay {
     }
 
     private fun MusicNotificationConfig.convert(): NotificationConfig{
-        val targetClass = this.targetClass
+       /* val targetClass = this.targetClass
         val targetBundle = this.targetClassBundle
         val pendingIntentMode = this.pendingIntentMode
+        val smallIconRes = this.smallIconRes*/
         return NotificationConfig.create {
-            targetClass { targetClass }
+            targetClass { this@convert.targetClass }
             targetClassBundle {
 
                 //参数自带当前音频播放信息，不用自己传
-                return@targetClassBundle targetBundle
+                return@targetClassBundle this@convert.targetClassBundle
             }
+            nextIntent { this@convert.nextIntent }
+            playIntent { this@convert.playIntent }
+            pauseIntent { this@convert.pauseIntent }
+            playOrPauseIntent { this@convert.playOrPauseIntent }
+            stopIntent { this@convert.stopIntent }
+            pauseDrawableRes { this@convert.pauseDrawableRes }
+            downloadIntent { this@convert.downloadIntent }
+            skipNextTitle { this@convert.skipNextTitle }
+            skipPreviousTitle { this@convert.skipPreviousTitle }
             smallIconRes {
-                this.smallIconRes
+                this@convert.smallIconRes
             }
-            pendingIntentMode { pendingIntentMode }
+            pendingIntentMode { this@convert.pendingIntentMode }
         }
     }
 
-    private fun PlaybackStage.revert(): PlayManger{
+    private fun PlaybackStage.revert(): PlayManger {
         val state = this@revert
         return PlayManger(
             lastSongInfo = state.lastSongInfo?.convert(),

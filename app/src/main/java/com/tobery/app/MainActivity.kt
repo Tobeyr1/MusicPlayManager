@@ -1,23 +1,20 @@
 package com.tobery.app
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.tobery.musicplay.MusicPlay
 import com.tobery.musicplay.MusicPlay.stopMusic
-import com.tobery.musicplay.PermissionChecks
 import com.tobery.musicplay.PlayConfig
+import com.tobery.musicplay.notification.MusicNotificationConfig
+import com.tobery.musicplay.util.PermissionChecks
+import com.tobery.musicplay.util.printLog
+import com.tobery.musicplay.util.setOnSingleClickListener
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var mService: TestService
-    private var mBound: Boolean = false
     private var checks: PermissionChecks? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,29 +28,28 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.RECORD_AUDIO
         )){
             if (it){
-                MusicPlay.initConfig(this, PlayConfig())
+                MusicPlay.initConfig(this, PlayConfig(
+                    notificationClass = "com.tobery.app.JavaActivity"
+                    ,
+                    defaultNotificationConfig = MusicNotificationConfig.create {
+                        targetClass { "com.tobery.musicplay.NotificationReceiver" }
+                        targetClassBundle {
+                            val bundle = Bundle()
+                            bundle.putString("title", "我是点击通知栏转跳带的参数")
+                            bundle.putString("targetClass", "com.tobery.app.JavaActivity")
+
+                            return@targetClassBundle bundle
+                        }
+                        smallIconRes {
+                            R.drawable.ic_music_cover
+                        }
+                    }
+                ))
             }
         }
 
-        findViewById<TextView>(R.id.tv_bt).setOnClickListener {
+        findViewById<TextView>(R.id.tv_bt).setOnSingleClickListener {
             startActivity(Intent(this,JavaActivity::class.java))
-            /*Intent(this, TestService::class.java).also { intent ->
-                bindService(intent, connection, Context.BIND_AUTO_CREATE)
-            }*/
-        }
-    }
-
-    private val connection = object : ServiceConnection {
-
-        @SuppressLint("MissingPermission")
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            val binder = service as TestService.LocalBinder
-            mService = binder.getService()
-            mBound = true
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-            mBound = false
         }
     }
 

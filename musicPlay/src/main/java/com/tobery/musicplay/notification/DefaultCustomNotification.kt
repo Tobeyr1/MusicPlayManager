@@ -1,4 +1,4 @@
-package com.tobery.musicplay
+package com.tobery.musicplay.notification
 
 import android.annotation.SuppressLint
 import android.app.*
@@ -82,6 +82,8 @@ import com.lzx.starrysky.utils.getPendingIntent
 import com.lzx.starrysky.utils.getResourceId
 import com.lzx.starrysky.utils.getTargetClass
 import com.lzx.starrysky.utils.orDef
+import com.tobery.musicplay.R
+import com.tobery.musicplay.util.printLog
 
 const val CHANNEL_ID = "com.tobey.musicPlay.MUSIC_CHANNEL_ID"
 const val NOTIFICATION_ID = 413
@@ -225,9 +227,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             return null
         }
         "开始创建通知".printLog()
-        //todo 添加用户自定义icon
-        val smallIcon = if (config?.smallIconRes != -1) R.drawable.ic_notification else R.drawable.ic_notification
-        //val smallIcon = if (config?.smallIconRes != -1) config?.smallIconRes else R.drawable.ic_notification
+        val smallIcon = if (config?.smallIconRes != -1) config?.smallIconRes!! else R.drawable.ic_music_notification
         //适配8.0
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(context, notificationManager!!)

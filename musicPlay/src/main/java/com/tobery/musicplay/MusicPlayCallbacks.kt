@@ -1,5 +1,6 @@
 package com.tobery.musicplay
 
+import com.tobery.musicplay.entity.PlayManger
 
 abstract class OnMusicPlayProgressListener{
 
