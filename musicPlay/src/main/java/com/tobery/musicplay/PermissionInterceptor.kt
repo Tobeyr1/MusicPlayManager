@@ -5,6 +5,9 @@ import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.intercept.InterceptCallback
 import com.lzx.starrysky.intercept.StarrySkyInterceptor
 import com.lzx.starrysky.utils.showToast
+import com.tobery.musicplay.util.ContextProvider
+import com.tobery.musicplay.util.PermissionChecks
+import com.tobery.musicplay.util.printLog
 
 class PermissionInterceptor  : StarrySkyInterceptor(){
 

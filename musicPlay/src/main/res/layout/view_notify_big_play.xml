@@ -13,8 +13,8 @@
         android:layout_width="113dp"
         android:layout_height="113dp"
         android:layout_gravity="center_vertical"
-        android:src="@drawable/default_art"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_art" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -88,8 +88,7 @@
                 android:id="@+id/img_notifyPlayOrPause"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
+                android:layout_centerInParent="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:adjustViewBounds="true"

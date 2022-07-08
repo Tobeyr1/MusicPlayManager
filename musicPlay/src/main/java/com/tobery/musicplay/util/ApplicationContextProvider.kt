@@ -1,7 +1,6 @@
-package com.tobery.musicplay
+package com.tobery.musicplay.util
 
 import android.content.ContentProvider
-import com.tobery.musicplay.ApplicationContextProvider
 import android.content.ContentValues
 import android.annotation.SuppressLint
 import android.content.Context

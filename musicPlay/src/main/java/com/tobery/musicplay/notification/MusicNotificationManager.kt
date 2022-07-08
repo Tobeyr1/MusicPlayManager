@@ -1,4 +1,4 @@
-package com.tobery.musicplay
+package com.tobery.musicplay.notification
 
 import android.content.Context
 import com.lzx.starrysky.notification.*
