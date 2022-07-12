@@ -10,7 +10,6 @@ import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
 import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.NotificationConfig
-import com.tobery.musicplay.MusicPlay.convert
 import com.tobery.musicplay.SpConstant.REPEAT_MODE_NONE
 import com.tobery.musicplay.entity.MusicCache
 import com.tobery.musicplay.entity.MusicInfo
@@ -336,10 +335,6 @@ object MusicPlay {
     }
 
     private fun MusicNotificationConfig.convert(): NotificationConfig{
-       /* val targetClass = this.targetClass
-        val targetBundle = this.targetClassBundle
-        val pendingIntentMode = this.pendingIntentMode
-        val smallIconRes = this.smallIconRes*/
         return NotificationConfig.create {
             targetClass { this@convert.targetClass }
             targetClassBundle {

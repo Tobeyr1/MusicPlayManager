@@ -127,7 +127,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
 
     private val option = RequestOptions()
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-        .transform(CenterCrop(), RoundedCorners(12))
+        .transform(RoundedCorners(25))
 
     init {
         notificationManager = context.getSystemService(Service.NOTIFICATION_SERVICE) as NotificationManager
@@ -263,11 +263,8 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         //create Notification
         mNotification = notificationBuilder
             .setCustomContentView(remoteView)
+            .setCustomBigContentView(bigRemoteView)
             .build()
-        //mNotification?.contentView = remoteView
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mNotification?.bigContentView = bigRemoteView
-        }
         updateRemoteViewUI(mNotification, songInfo, smallIcon)
         return mNotification
     }
@@ -420,13 +417,30 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         if (art == null){
             fetchArtUrl = songInfo?.songCover
         }else{
-            remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
-            bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
+           /* remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
+            bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)*/
+            loadBitmapFromCache(art,notification)
         }
         notificationManager?.notify(NOTIFICATION_ID, notification)
         if (!fetchArtUrl.isNullOrEmpty()) {
             fetchBitmapFromURLAsync(fetchArtUrl, notification)
         }
+    }
+
+    private fun loadBitmapFromCache(bitmap: Bitmap,notification: Notification?){
+        Glide.with(context).asBitmap().load(bitmap).apply(option)
+            .into(object : CustomTarget<Bitmap?>(){
+                override fun onResourceReady(bitmap: Bitmap, transition: Transition<in Bitmap?>?) {
+                    remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), bitmap)
+                    bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), bitmap)
+                    if (mNotification != null) {
+                        notificationManager?.notify(NOTIFICATION_ID, notification)
+                    }
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {
+                }
+
+            })
     }
 
     /**
