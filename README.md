@@ -9,7 +9,6 @@ Used to  package the StarrySky library
 ```java
 allprojects {
 		repositories {
-			...
 			maven { url 'https://jitpack.io' }
 		}
 	}
@@ -168,4 +167,38 @@ ViewExtensionKt.printLog(playbackStage.getSongInfo().getSongUrl());
 xxx.printLog()
 ```
 **External methods**
-
+| MusicPlay.playMusicById() | 通过songId播放|
+|--|--|
+|  MusicPlay.playMusicByUrl()| 通过歌曲url播放|
+|--|--|
+|  MusicPlay.playMusicByInfo()| 通过歌曲信息播放 |
+|--|--|
+|  MusicPlay.playMusicByList(songList,0)| 播放歌曲列表，并从指定下标开始|
+|--|--|
+|  MusicPlay.pauseMusic()| 暂停 |
+|--|--|
+|  MusicPlay.restoreMusic()| 恢复播放|
+|--|--|
+|  MusicPlay.setRepeatMode()| 设置播放模式以及是否循环 |
+|--|--|
+|  MusicPlay.getRepeatMode()| 获取当前播放模式 |
+|--|--|
+|  MusicPlay.skipToNext()| 下一首 |
+|--|--|
+|  MusicPlay.skipToPrevious()| 上一首 |
+|--|--|
+|  MusicPlay.stopMusic()| 停止 |
+|--|--|
+|  MusicPlay.isPlaying()| 是否播放中 |
+|--|--|
+|  MusicPlay.onPlayProgressListener()| 进度监听 |
+|--|--|
+|  MusicPlay.onPlayStateListener()| 状态监听 |
+|--|--|
+|  MusicPlay.seekTo()| 跳至指定进度，并可以觉得是否播放 |
+|--|--|
+|  MusicPlay.addPlayList()| 添加播放队列 |
+|--|--|
+|  MusicPlay.clearPlayList()| 清空播放队列 |
+|--|--|
+#### 还有好对方法，如设置音量大小、倍速、更新播放队列、开关通知栏等等。
