@@ -270,7 +270,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
     }
 
     private fun setNotificationPlaybackState(builder: NotificationCompat.Builder) {
-        "当前$mStarted".printLog()
         if (!mStarted) {
             (context as MusicService).stopForeground(true)
         }
@@ -493,7 +492,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun startNotification(songInfo: SongInfo?, playbackState: String) {
-        "开启通知".printLog()
         this.playbackState = playbackState
         if (this.songInfo?.songId != songInfo?.songId) {
             this.songInfo = songInfo
@@ -511,8 +509,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 filter.addAction(ACTION_PREV)
                 filter.addAction(ACTION_PLAY_OR_PAUSE)
                 context.registerReceiver(this, filter)
-                "notification是否为空${notification.channelId}".printLog()
-                "context内容:${context.packageName}".printLog()
                 (context as MusicService).startForeground(NOTIFICATION_ID, notification)
                 mStarted = true
             }
@@ -563,7 +559,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             }
             ACTION_UPDATE_LYRICS -> {
                 val isChecked = extras?.getBoolean("isChecked").orDef()
-                "当前是否点击歌词$isChecked".printLog()
                 updateLyricsUI(isChecked)
             }
         }
