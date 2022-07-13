@@ -8,6 +8,7 @@ import android.os.Bundle;
 import com.tobery.musicplay.MusicPlay;
 import com.tobery.musicplay.OnMusicPlayProgressListener;
 import com.tobery.musicplay.OnMusicPlayStateListener;
+import com.tobery.musicplay.SpConstant;
 import com.tobery.musicplay.entity.MusicInfo;
 import com.tobery.musicplay.PlayConfig;
 import com.tobery.musicplay.entity.PlayManger;
@@ -73,13 +74,12 @@ public class JavaActivity extends AppCompatActivity {
             songInfo3.setSongId("3727");
             songInfo3.setArtist("flc");
             songInfo3.setSongName("测试");
-            songInfo3.setSongUrl("http://m8.music.126.net/20220706153844/41cc70c399540e0ff8cf639114e157ce/ymusic/9429/7fbc/3727/d0647c73bcc77006b94ce6ad9ae620f7.flac");
+            songInfo3.setSongUrl("http://m7.music.126.net/20220712213650/22fb8c3657f5028a979ab9ead32e3b9d/ymusic/b527/3445/b7c2/8f590a92a0a02a0f80b0ccdb76df7cb2.flac");
             songInfo3.setSongCover("http://p3.music.126.net/EI-1VBiCIJ7lF9R7sxFNJA==/109951167611502432.jpg");
             songList.add(songInfo3);
             MusicPlay.playMusicByList(songList,0);
 
             MusicPlay.onPlayStateListener(this, new OnMusicPlayStateListener() {
-
                 @Override
                 public void onPlayState(@NonNull PlayManger playbackStage) {
                     switch (playbackStage.getStage()){
@@ -111,11 +111,6 @@ public class JavaActivity extends AppCompatActivity {
             });
             return  null;
         });
-      /*  findViewById(R.id.bt_one).setOnClickListener(v -> {
-            //http://m8.music.126.net/20220706153844/41cc70c399540e0ff8cf639114e157ce/ymusic/9429/7fbc/3727/d0647c73bcc77006b94ce6ad9ae620f7.flac
-
-
-        });*/
     }
 
 }

@@ -10,7 +10,6 @@ import com.tobery.musicplay.MusicPlay.stopMusic
 import com.tobery.musicplay.PlayConfig
 import com.tobery.musicplay.notification.MusicNotificationConfig
 import com.tobery.musicplay.util.PermissionChecks
-import com.tobery.musicplay.util.printLog
 import com.tobery.musicplay.util.setOnSingleClickListener
 
 class MainActivity : AppCompatActivity() {

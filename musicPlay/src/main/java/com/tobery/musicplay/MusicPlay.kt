@@ -10,7 +10,10 @@ import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.StarrySky
 import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.NotificationConfig
+import com.lzx.starrysky.playback.FocusInfo
 import com.tobery.musicplay.SpConstant.REPEAT_MODE_NONE
+import com.tobery.musicplay.SpConstant.VOLUME_DUCK
+import com.tobery.musicplay.entity.PlayFocus
 import com.tobery.musicplay.entity.MusicCache
 import com.tobery.musicplay.entity.MusicInfo
 import com.tobery.musicplay.entity.PlayManger
@@ -93,6 +96,10 @@ object MusicPlay {
         StarrySky.with().setVolume(volume)
     }
 
+    //获取音量
+    @JvmStatic
+    fun getVolume(): Float = StarrySky.with().getVolume()
+
     //设置播放模式
     @JvmStatic
     fun setRepeatMode(mode: Int = REPEAT_MODE_NONE,isLoop: Boolean = false){
@@ -142,18 +149,39 @@ object MusicPlay {
     }
 
     //播放列表以及对应歌曲的下标
-    //todo 增加播放列表
     @JvmStatic
     fun playMusicByList(mediaList: MutableList<MusicInfo>, index: Int = 0){
         StarrySky.with().playMusic(mediaList.map { it.revert() }.toMutableList(),index)
     }
 
+    //根据songUrl准备
+    @JvmStatic
+    fun prepareByUrl(url: String){
+        StarrySky.with().prepareByUrl(url)
+    }
+
+    //根据 SongInfo 准备
+    @JvmStatic
+    fun prepareByInfo(info: MusicInfo){
+        StarrySky.with().prepareByInfo(info.revert())
+    }
+
+    //根据songId准备,调用前请确保已经设置了播放列表
+    @JvmStatic
+    fun prepareById(songId: String) {
+        StarrySky.with().prepareById(songId)
+    }
+
+    //准备播放，准备的是队列当前下标的音频
+    @JvmStatic
+    fun prepare() {
+        StarrySky.with().prepare()
+    }
+
     //暂停
     @JvmStatic
     fun pauseMusic(){
-        if (StarrySky.with().isPlaying()){
-            StarrySky.with().pauseMusic()
-        }
+        StarrySky.with().pauseMusic()
     }
 
     //恢复播放
@@ -176,17 +204,34 @@ object MusicPlay {
         StarrySky.with().stopMusic()
     }
 
+    //快进 每调一次加 speed 倍
+    @JvmStatic
+    fun fastForward(speed: Float){
+        StarrySky.with().fastForward(speed)
+    }
+
+    //快退 每调一次减 speed 倍，最小为 0
+    @JvmStatic
+    fun rewind(speed: Float){
+        StarrySky.with().rewind(speed)
+    }
+
     //当前传入music id 是否播放
     @JvmStatic
-    fun isCurrMusicIsPlaying(songId: String?){
-        StarrySky.with().isCurrMusicIsPlaying(songId)
-    }
+    fun isCurrMusicIsPlaying(songId: String?): Boolean = StarrySky.with().isCurrMusicIsPlaying(songId)
 
     //当前传入music id 是否暂停
     @JvmStatic
-    fun isCurrMusicIsPaused(songId: String?){
-        StarrySky.with().isCurrMusicIsPaused(songId)
-    }
+    fun isCurrMusicIsPaused(songId: String?):Boolean = StarrySky.with().isCurrMusicIsPaused(songId)
+
+    //判断传入的音乐是否空闲
+    @JvmStatic
+    fun isCurrMusicIsIdea(songId: String?): Boolean = StarrySky.with().isCurrMusicIsIdea(songId)
+
+    //判断传入的音乐是否缓冲
+    @JvmStatic
+    fun isCurrMusicIsBuffering(songId: String?): Boolean = StarrySky.with().isCurrMusicIsBuffering(songId)
+
 
     //获取音乐长度
     @JvmStatic
@@ -195,6 +240,22 @@ object MusicPlay {
     //是否正在播放
     @JvmStatic
     fun isPlaying():Boolean = StarrySky.with().isPlaying()
+
+    //是否暂停
+    @JvmStatic
+    fun isPaused(): Boolean = StarrySky.with().isPaused()
+
+    //当前媒体是否空闲
+    @JvmStatic
+    fun isIdle(): Boolean = StarrySky.with().isIdle()
+
+    //当前媒体是否缓冲
+    @JvmStatic
+    fun isBuffering(): Boolean = StarrySky.with().isBuffering()
+
+    //判断传入的音乐是不是正在播放的音乐
+    @JvmStatic
+    fun isCurrMusicIsPlayingMusic(songId: String?): Boolean = StarrySky.with().isCurrMusicIsPlayingMusic(songId)
 
     //获取当前播放音乐信息
     @JvmStatic
@@ -215,6 +276,26 @@ object MusicPlay {
     //以ms为单位获取当前缓冲的位置。
     @JvmStatic
     fun getBufferedPosition(): Long = StarrySky.with().getBufferedPosition()
+
+    //获取播放位置 毫秒为单位
+    @JvmStatic
+    fun getPlayingPosition(): Long = StarrySky.with().getPlayingPosition()
+
+    /**
+     * 是否跳过播放队列，false的话，播放将不经过播放队列，直接走播放器，当前Activity结束后恢复false状态
+     */
+    @JvmStatic
+    fun skipMediaQueue(isSkipMediaQueue: Boolean){
+        StarrySky.with().skipMediaQueue(isSkipMediaQueue)
+    }
+
+    /**
+     * 是否需要状态回调，false的话将收不到回调，即使你已经设置了，当前Activity结束后恢复true状态
+     */
+    @JvmStatic
+    fun setWithOutCallback(withOutCallback: Boolean){
+        StarrySky.with().setWithOutCallback(withOutCallback)
+    }
 
     //获取播放队列
     @JvmStatic
@@ -268,6 +349,35 @@ object MusicPlay {
         StarrySky.with().removeSongInfo(songId)
     }
 
+    //扫描本地媒体信息
+    @JvmStatic
+    fun querySongInfoInLocal(context: Context): List<MusicInfo> = StarrySky.with().querySongInfoInLocal(context).map { it.convert() }
+
+    //控制是否使用缓存功能
+    @JvmStatic
+    fun cacheSwitch(switch: Boolean){
+        StarrySky.with().cacheSwitch(switch)
+    }
+
+    /**
+     * 定时停止播放
+     * time 时间，单位毫秒，传 0 为不开启
+     * isPause 到时间了是否暂停，如果为false，则到时间后会调用stop
+     * isFinishCurrSong 时间到后是否播放完当前歌曲再停
+     */
+    @JvmStatic
+    fun stopByTimedOff(time: Long, isPause: Boolean, isFinishCurrSong: Boolean){
+        StarrySky.with().stopByTimedOff(time,isPause,isFinishCurrSong)
+    }
+
+    //焦点变化监听,LiveData 方式
+    @JvmStatic
+    fun focusStateChange(owner: LifecycleOwner,callback: OnFocusListener? = null){
+        StarrySky.with().focusStateChange().observe(owner){
+            callback?.onFocusChange(it.revert())
+        }
+    }
+
     //关闭notification
     @JvmStatic
     fun closeNotification(){
@@ -289,6 +399,23 @@ object MusicPlay {
     //获取通知栏类型
     @JvmStatic
     fun getNotificationType(): Int = StarrySky.getNotificationType()
+
+    /**
+     * 通知栏类型
+     * INotification.SYSTEM_NOTIFICATION
+     * INotification.CUSTOM_NOTIFICATION
+     * 默认自定义通知栏
+     */
+    @JvmStatic
+    fun setNotificationType(notificationType: Int){
+        StarrySky.setNotificationType(notificationType)
+    }
+
+    //是否自动焦点管理
+    @JvmStatic
+    fun setAutoManagerFocus(isAutoManagerFocus: Boolean){
+        StarrySky.setAutoManagerFocus(isAutoManagerFocus)
+    }
 
     //获取缓存类
     @JvmStatic
@@ -366,6 +493,15 @@ object MusicPlay {
             isStop = state.isStop,
             errorMsg = state.errorMsg,
             stage = state.stage
+        )
+    }
+
+    private fun FocusInfo.revert(): PlayFocus{
+        return PlayFocus(
+            songInfo = this.songInfo?.convert(),
+            audioFocusState = this.audioFocusState,
+            playerCommand = this.playerCommand,
+            volume = this.volume
         )
     }
 

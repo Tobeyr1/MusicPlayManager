@@ -447,7 +447,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
      */
     private fun fetchBitmapFromURLAsync(fetchArtUrl: String, notification: Notification?) {
         "加载图片网址$fetchArtUrl".printLog()
-        //todo 解决图片圆角问题
         Glide.with(context).asBitmap().load(fetchArtUrl)
             .apply(option)
             .into(object : CustomTarget<Bitmap?>(){
@@ -495,7 +494,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         this.playbackState = playbackState
         if (this.songInfo?.songId != songInfo?.songId) {
             this.songInfo = songInfo
-            "当前歌曲信息是否正确".printLog()
             createNotification()
         }
         if (!mStarted) {
