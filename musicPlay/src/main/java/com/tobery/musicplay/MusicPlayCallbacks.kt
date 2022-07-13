@@ -1,5 +1,6 @@
 package com.tobery.musicplay
 
+import com.tobery.musicplay.entity.PlayFocus
 import com.tobery.musicplay.entity.PlayManger
 
 abstract class OnMusicPlayProgressListener{
@@ -10,4 +11,9 @@ abstract class OnMusicPlayProgressListener{
 abstract class OnMusicPlayStateListener{
 
     abstract fun onPlayState(playbackStage: PlayManger)
+}
+
+abstract class OnFocusListener{
+
+    abstract fun onFocusChange(focusInfo: PlayFocus)
 }
