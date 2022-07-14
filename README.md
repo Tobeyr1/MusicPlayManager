@@ -16,7 +16,7 @@ allprojects {
 **Then add the dependency:**
 ```java
 dependencies {
-	        implementation 'com.github.Tobeyr1:MusicPlayManager:1.0.1'
+	        implementation 'com.github.Tobeyr1:MusicPlayManager:1.0.2-alpha'
 	}
 ```
 # Basic Usage
