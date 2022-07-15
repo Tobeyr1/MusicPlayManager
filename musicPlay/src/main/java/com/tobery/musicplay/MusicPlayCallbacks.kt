@@ -17,3 +17,8 @@ abstract class OnFocusListener{
 
     abstract fun onFocusChange(focusInfo: PlayFocus)
 }
+
+abstract class OnNetWorkChangeListener{
+
+    abstract fun onNetWorkChange(isAvailable: Boolean)
+}

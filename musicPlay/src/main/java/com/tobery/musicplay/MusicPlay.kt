@@ -2,7 +2,12 @@ package com.tobery.musicplay
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import androidx.annotation.FloatRange
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.lzx.starrysky.GlobalPlaybackStageListener
 import com.lzx.starrysky.OnPlayProgressListener
@@ -18,12 +23,15 @@ import com.tobery.musicplay.entity.MusicCache
 import com.tobery.musicplay.entity.MusicInfo
 import com.tobery.musicplay.entity.PlayManger
 import com.tobery.musicplay.notification.MusicNotificationConfig
+import com.tobery.musicplay.util.NetWorkObserver
 import com.tobery.musicplay.util.printLog
 import java.io.File
 
 object MusicPlay {
 
     private var config: PlayConfig? = null
+
+    private var netWorkObserver:NetWorkObserver? = null
 
     @JvmStatic
     fun initConfig(context: Context,config: PlayConfig = PlayConfig()){
@@ -375,6 +383,30 @@ object MusicPlay {
     fun focusStateChange(owner: LifecycleOwner,callback: OnFocusListener? = null){
         StarrySky.with().focusStateChange().observe(owner){
             callback?.onFocusChange(it.revert())
+        }
+    }
+
+    //获取网络状态
+    @RequiresApi(Build.VERSION_CODES.M)
+    @JvmStatic
+    fun isNetworkAvailable(owner: LifecycleOwner,context: Context,callback: OnNetWorkChangeListener? = null){
+        owner.lifecycle.addObserver(MyObserver())
+        netWorkObserver = NetWorkObserver(context) {
+            callback?.onNetWorkChange(it)
+        }
+    }
+
+    internal class MyObserver : DefaultLifecycleObserver {
+        override fun onResume(owner: LifecycleOwner) {
+
+        }
+
+        override fun onStop(owner: LifecycleOwner) {
+            netWorkObserver?.shutdown()
+        }
+
+        override fun onPause(owner: LifecycleOwner) {
+
         }
     }
 
