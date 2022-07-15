@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.os.Bundle;
+import android.widget.Toast;
+
 import com.tobery.musicplay.MusicPlay;
 import com.tobery.musicplay.OnMusicPlayProgressListener;
 import com.tobery.musicplay.OnMusicPlayStateListener;
+import com.tobery.musicplay.OnNetWorkChangeListener;
 import com.tobery.musicplay.SpConstant;
 import com.tobery.musicplay.entity.MusicInfo;
 import com.tobery.musicplay.PlayConfig;
@@ -37,6 +40,17 @@ public class JavaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_java);
         checks = new PermissionChecks(this);
+        MusicPlay.isNetworkAvailable(this,this, new OnNetWorkChangeListener() {
+            @Override
+            public void onNetWorkChange(boolean isAvailable) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(JavaActivity.this,"当前网络是否可用"+isAvailable+"",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
         PlayConfig playConfig = new PlayConfig(
 
         );
