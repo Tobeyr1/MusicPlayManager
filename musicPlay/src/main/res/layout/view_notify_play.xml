@@ -28,7 +28,7 @@
 
         <TextView
             android:id="@+id/txt_notifySongName"
-            style="@style/notification_title"
+            style="@style/notification_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -39,7 +39,7 @@
 
         <TextView
             android:id="@+id/txt_notifyArtistName"
-            style="@style/notification_info"
+            style="@style/notification_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"

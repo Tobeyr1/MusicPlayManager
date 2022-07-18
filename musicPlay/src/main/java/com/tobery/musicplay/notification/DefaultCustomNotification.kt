@@ -16,7 +16,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
@@ -24,7 +23,6 @@ import com.bumptech.glide.request.transition.Transition
 import com.lzx.starrysky.SongInfo
 import com.lzx.starrysky.manager.PlaybackStage
 import com.lzx.starrysky.notification.INotification
-import com.lzx.starrysky.notification.INotification.Companion.ACTION_CLOSE
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_DOWNLOAD
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_FAVORITE
 import com.lzx.starrysky.notification.INotification.Companion.ACTION_LYRICS
@@ -125,6 +123,9 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
 
     private var timerTaskManager: TimerTaskManager? = null
 
+    private var currentPlayTime: Int? = null
+    private var currentSongDuration: Int? = null
+
     private val option = RequestOptions()
         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
         .transform(RoundedCorners(25))
@@ -162,7 +163,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
             }
             ACTION_NEXT -> player?.skipToNext()
             ACTION_PREV -> player?.skipToPrevious()
-            ACTION_CLOSE -> stopNotification()
         }
         lastClickTime = nowTime
     }
@@ -377,6 +377,7 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 if (isDark) DRAWABLE_NOTIFY_BTN_DARK_PLAY_SELECTOR else DRAWABLE_NOTIFY_BTN_LIGHT_PLAY_SELECTOR
             remoteView?.setImageViewResource(ID_IMG_NOTIFY_PLAY_OR_PAUSE.getResId(), name.getResDrawable())
         }
+        "当前是否暗黑模式$isDark".printLog()
 
         //大布局
         //设置文字内容
@@ -411,13 +412,16 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         "是否有下一首$hasNextSong".printLog()
         disableNextBtn(hasNextSong, isDark)
         disablePreviousBtn(hasPreSong, isDark)
+        if (currentSongDuration != null && ID_PROGRESSBAR.getResId() != 0){
+            bigRemoteView?.setProgressBar(ID_PROGRESSBAR.getResId(), currentSongDuration!!, currentPlayTime!!, false)
+            bigRemoteView?.setTextViewText(ID_CURR_PRO_TEXT.getResId(), currentPlayTime?.formatTime())
+            bigRemoteView?.setTextViewText(ID_TOTAL_PRO_TEXT.getResId(), currentSongDuration?.formatTime())
+        }
         //封面
         var fetchArtUrl: String? = null
         if (art == null){
             fetchArtUrl = songInfo?.songCover
         }else{
-           /* remoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)
-            bigRemoteView?.setImageViewBitmap(ID_IMG_NOTIFY_ICON.getResId(), art)*/
             loadBitmapFromCache(art,notification)
         }
         notificationManager?.notify(NOTIFICATION_ID, notification)
@@ -517,6 +521,8 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 val player = (context as MusicService).binder?.player
                 val position = player?.currentStreamPosition().orDef().toInt()
                 val duration = player?.duration().orDef().toInt()
+                currentPlayTime = position
+                currentSongDuration = duration
                 mNotification?.let {
                     //进度条
                     bigRemoteView?.setProgressBar(ID_PROGRESSBAR.getResId(), duration, position, false)
@@ -546,6 +552,8 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
         if (ID_PROGRESSBAR.getResId() != 0) {
             timerTaskManager?.removeUpdateProgressTask()
             timerTaskManager = null
+            currentSongDuration = null
+            currentPlayTime = null
         }
     }
 
