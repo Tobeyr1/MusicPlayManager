@@ -23,6 +23,7 @@ import com.tobery.musicplay.entity.MusicCache
 import com.tobery.musicplay.entity.MusicInfo
 import com.tobery.musicplay.entity.PlayManger
 import com.tobery.musicplay.notification.MusicNotificationConfig
+import com.tobery.musicplay.util.ContextProvider
 import com.tobery.musicplay.util.NetWorkObserver
 import com.tobery.musicplay.util.printLog
 import java.io.File
@@ -386,12 +387,21 @@ object MusicPlay {
         }
     }
 
-    //获取网络状态
+    //获取网络状态,跟随生命周期
     @RequiresApi(Build.VERSION_CODES.M)
     @JvmStatic
     fun isNetworkAvailable(owner: LifecycleOwner,context: Context,callback: OnNetWorkChangeListener? = null){
         owner.lifecycle.addObserver(MyObserver())
         netWorkObserver = NetWorkObserver(context) {
+            callback?.onNetWorkChange(it)
+        }
+    }
+
+    //获取网络状态
+    @RequiresApi(Build.VERSION_CODES.M)
+    @JvmStatic
+    fun networkGlobalAvailable(callback: OnNetWorkChangeListener? = null){
+        NetWorkObserver(ContextProvider.get().context){
             callback?.onNetWorkChange(it)
         }
     }

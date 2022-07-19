@@ -46,7 +46,18 @@ public class JavaActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(JavaActivity.this,"当前网络是否可用"+isAvailable+"",Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(JavaActivity.this,"当前网络是否可用"+isAvailable+"",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        MusicPlay.networkGlobalAvailable(new OnNetWorkChangeListener() {
+            @Override
+            public void onNetWorkChange(boolean isAvailable) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                         Toast.makeText(JavaActivity.this,"当前网络是否可用"+isAvailable+"",Toast.LENGTH_SHORT).show();
                     }
                 });
             }

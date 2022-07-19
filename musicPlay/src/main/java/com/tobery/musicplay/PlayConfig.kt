@@ -5,7 +5,7 @@ import com.lzx.starrysky.notification.INotification
 import com.tobery.musicplay.notification.MusicNotificationManager.Companion.CUSTOM_NOTIFICATION_FACTORY
 import com.tobery.musicplay.notification.MusicNotificationConfig
 import com.tobery.musicplay.notification.MusicNotificationManager
-import com.tobery.musicplay.util.ContextProvider
+import com.tobery.musicplay.util.GlideImageLoader
 import com.tobery.musicplay.util.printLog
 
 
