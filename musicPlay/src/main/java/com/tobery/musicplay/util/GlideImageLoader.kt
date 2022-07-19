@@ -1,4 +1,4 @@
-package com.tobery.musicplay
+package com.tobery.musicplay.util
 
 import android.content.Context
 import android.graphics.Bitmap
