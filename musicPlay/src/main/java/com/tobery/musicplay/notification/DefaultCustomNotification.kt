@@ -377,7 +377,6 @@ class DefaultCustomNotification constructor(val context: Context,var config: Not
                 if (isDark) DRAWABLE_NOTIFY_BTN_DARK_PLAY_SELECTOR else DRAWABLE_NOTIFY_BTN_LIGHT_PLAY_SELECTOR
             remoteView?.setImageViewResource(ID_IMG_NOTIFY_PLAY_OR_PAUSE.getResId(), name.getResDrawable())
         }
-        "当前是否暗黑模式$isDark".printLog()
 
         //大布局
         //设置文字内容
