@@ -1,5 +1,5 @@
 # MusicPlayManager [![](https://jitpack.io/v/Tobeyr1/MusicPlayManager.svg)](https://jitpack.io/#Tobeyr1/MusicPlayManager)
-Used to  package the StarrySky library
+Used to  package the StarrySky library(二次封装音乐播放器)
 ---------------------------
 **MusicPlayManager EncapsulateStarrySky, and realize custom notification bar and unified command style,And add permission checking tools, non intrusive access context tools, logging tools, etc**
 
