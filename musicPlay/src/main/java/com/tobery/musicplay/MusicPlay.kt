@@ -2,12 +2,11 @@ package com.tobery.musicplay
 
 import android.app.Application
 import android.content.Context
+import android.media.audiofx.Equalizer
 import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.lzx.starrysky.GlobalPlaybackStageListener
 import com.lzx.starrysky.OnPlayProgressListener
@@ -25,7 +24,6 @@ import com.tobery.musicplay.entity.PlayManger
 import com.tobery.musicplay.notification.MusicNotificationConfig
 import com.tobery.musicplay.util.ContextProvider
 import com.tobery.musicplay.util.NetWorkObserver
-import com.tobery.musicplay.util.printLog
 import java.io.File
 
 object MusicPlay {
@@ -470,6 +468,56 @@ object MusicPlay {
         StarrySky.effect().equalizerUsePreset(preset)
     }
 
+    //应用音效参数改变，参数自定义
+    @JvmStatic
+    fun updateConfig(effectConfig: String?, bassBoostConfig: String?, virtualizerConfig: String?) {
+        StarrySky.effect().updateConfig(effectConfig,bassBoostConfig,virtualizerConfig)
+    }
+
+    //获取均衡器
+    @JvmStatic
+    fun equalizer(): Equalizer? = StarrySky.effect().equalizer()
+
+    //获取均衡器引擎支持的频带数
+    @JvmStatic
+    fun equalizerNumberOfBands(): Short = StarrySky.effect().equalizerNumberOfBands()
+
+    //获取供{@link #setBandLevel（short，short）}使用的级别范围。 级别以毫贝表示。
+    @JvmStatic
+    fun equalizerBandLevelRange(): ShortArray = StarrySky.effect().equalizerBandLevelRange()
+
+    //获取给定均衡器频段的增益设置
+    @JvmStatic
+    fun equalizerBandLevel(band: Short): Short = StarrySky.effect().equalizerBandLevel(band)
+
+    //获取给定频段的中心频率
+    @JvmStatic
+    fun equalizerCenterFreq(band: Short): Int = StarrySky.effect().equalizerCenterFreq(band)
+
+    //将均衡器频段修改为给定的增益值
+    @JvmStatic
+    fun equalizerBandLevel(band: Short, level: Short){
+        StarrySky.effect().equalizerBandLevel(band,level)
+    }
+
+    //音效预设
+    @JvmStatic
+    fun String.equalizerPresetName(): String {
+        when (this) {
+            "Normal" -> return "正常"
+            "Classical" -> return "古典"
+            "Dance" -> return "舞蹈"
+            "Flat" -> return "平坦"
+            "Folk" -> return "民谣"
+            "Heavy Metal" -> return "重金属"
+            "Hip Hop" -> return "嘻哈"
+            "Jazz" -> return "爵士"
+            "Pop" -> return "流行"
+            "Rock" -> return "摇滚"
+        }
+        return this
+    }
+
     //应用音效参数改变
     @JvmStatic
     fun applyChanges() {
@@ -533,12 +581,17 @@ object MusicPlay {
     @JvmStatic
     fun getPlayerCache(context: Context): MusicCache {
         val cache = StarrySky.getPlayerCache()
-        "当前cache配置${config?.cacheFilePath}".printLog()
         return MusicCache(
             isOpenCache = cache?.isOpenCache() == true,
             //todo 获取用户配置的config.cache路径
             cacheDirectory = cache?.getCacheDirectory(context, config?.cacheFilePath).toString()
         )
+    }
+
+    //释放音效资源
+    @JvmStatic
+    fun releaseAudioEffect() {
+        StarrySky.effect().releaseAudioEffect()
     }
 
     //对象类全置空
