@@ -406,6 +406,76 @@ object MusicPlay {
         }
     }
 
+    //是否开启音效
+    @JvmStatic
+    fun effectSwitch(isOpen: Boolean){
+        StarrySky.effectSwitch(isOpen)
+    }
+
+    //获取音效开关
+    @JvmStatic
+    fun getEffectSwitch() = StarrySky.getEffectSwitch()
+
+    //音效配置信息是否要本地存储
+    @JvmStatic
+    fun saveEffectConfig(save: Boolean){
+        StarrySky.saveEffectConfig(save)
+    }
+
+    //获取 AudioSessionId(用于音效配置)
+    @JvmStatic
+    fun getAudioSessionId(): Int = StarrySky.with().getAudioSessionId()
+
+    //根据 audioSessionId 应用音效(注意这个方法没有加开关判断)
+    @JvmStatic
+    fun attachAudioEffect(audioSessionId: Int){
+        StarrySky.effect().attachAudioEffect(audioSessionId)
+    }
+
+    //获取均衡器支持的预设总数。 预设将具有索引[0，预设数量-1]
+    @JvmStatic
+    fun equalizerNumberOfPresets(): Short = StarrySky.effect().equalizerNumberOfPresets()
+
+    //获取当前预设
+    @JvmStatic
+    fun equalizerCurrentPreset(): Short = StarrySky.effect().equalizerCurrentPreset()
+
+    //获取低音效果的当前强度
+    @JvmStatic
+    fun bassBoostRoundedStrength(): Short = StarrySky.effect().bassBoostRoundedStrength()
+
+    //设置低音增强效果的强度。 如果实现不支持设置强度的精确度，则可以将给定的强度四舍五入到最接近的支持值
+    @JvmStatic
+    fun bassBoostStrength(strength: Short){
+        StarrySky.effect().bassBoostStrength(strength)
+    }
+
+    //获取环绕音效果的当前强度
+    @JvmStatic
+    fun virtualizerStrength(): Short = StarrySky.effect().virtualizerStrength()
+
+    //设置虚拟器效果的强度。 如果实现不支持设置强度的精确度，则可以将给定的强度四舍五入到最接近的支持值
+    @JvmStatic
+    fun virtualizerStrength(strength: Short) {
+        StarrySky.effect().virtualizerStrength(strength)
+    }
+
+    //根据索引获取预设名称
+    @JvmStatic
+    fun equalizerPresetName(preset: Short): String = StarrySky.effect().equalizerPresetName(preset)
+
+    //根据给定的预设设置均衡器
+    @JvmStatic
+    fun equalizerUsePreset(preset: Short){
+        StarrySky.effect().equalizerUsePreset(preset)
+    }
+
+    //应用音效参数改变
+    @JvmStatic
+    fun applyChanges() {
+        StarrySky.effect().applyChanges()
+    }
+
     internal class MyObserver : DefaultLifecycleObserver {
         override fun onResume(owner: LifecycleOwner) {
 

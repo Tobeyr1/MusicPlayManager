@@ -11,7 +11,6 @@ import com.tobery.musicplay.MusicPlay;
 import com.tobery.musicplay.OnMusicPlayProgressListener;
 import com.tobery.musicplay.OnMusicPlayStateListener;
 import com.tobery.musicplay.OnNetWorkChangeListener;
-import com.tobery.musicplay.SpConstant;
 import com.tobery.musicplay.entity.MusicInfo;
 import com.tobery.musicplay.PlayConfig;
 import com.tobery.musicplay.entity.PlayManger;
@@ -113,6 +112,7 @@ public class JavaActivity extends AppCompatActivity {
                             break;
                         case PlayManger.PLAYING:
                             ViewExtensionKt.printLog("播放");
+                            ViewExtensionKt.printLog("当前音效"+MusicPlay.getAudioSessionId());
                             break;
                         case PlayManger.BUFFERING:
                             ViewExtensionKt.printLog("缓冲");
@@ -135,6 +135,23 @@ public class JavaActivity extends AppCompatActivity {
                 }
             });
             return  null;
+        });
+
+        ViewExtensionKt.setOnSingleClickListener(findViewById(R.id.bt_two), view -> {
+            MusicPlay.saveEffectConfig(true);
+            MusicPlay.effectSwitch(true);
+            MusicPlay.attachAudioEffect(MusicPlay.getAudioSessionId());
+            //获取均衡器支持的预设总数
+            short numberOfPresets = MusicPlay.equalizerNumberOfPresets();
+            //获取当前的预设
+            Short currentPreset = MusicPlay.equalizerCurrentPreset();
+            ViewExtensionKt.printLog("当前预设"+currentPreset);
+            int preset = 0;
+            ViewExtensionKt.printLog("预设数"+numberOfPresets);
+            for(short var6 = numberOfPresets; preset < var6; ++preset) {
+                String presetName = MusicPlay.equalizerPresetName((short)preset);
+                ViewExtensionKt.printLog("预设内容"+presetName);
+            }
         });
     }
 
