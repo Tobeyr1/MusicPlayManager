@@ -150,7 +150,7 @@ public class JavaActivity extends AppCompatActivity {
             ViewExtensionKt.printLog("预设数"+numberOfPresets);
             for(short var6 = numberOfPresets; preset < var6; ++preset) {
                 String presetName = MusicPlay.equalizerPresetName((short)preset);
-                ViewExtensionKt.printLog("预设内容"+presetName);
+                ViewExtensionKt.printLog("预设内容"+MusicPlay.equalizerPresetName(presetName));
             }
         });
     }
