@@ -16,7 +16,7 @@ allprojects {
 **Then add the dependency:**
 ```java
 dependencies {
-	        implementation 'com.github.Tobeyr1:MusicPlayManager:1.0.2-alpha'
+	        implementation 'com.github.Tobeyr1:MusicPlayManager:1.0.2'
 	}
 ```
 # Basic Usage
@@ -195,10 +195,15 @@ xxx.printLog()
 |--|--|
 |  MusicPlay.onPlayStateListener()| 状态监听 |
 |--|--|
+|  MusicPlay.isNetworkAvailable()| 网络状态监听，基于生命周期 |
+|--|--|
+|  MusicPlay.networkGlobalAvailable()| 网络状态全局监听 |
+|--|--|
 |  MusicPlay.seekTo()| 跳至指定进度，并可以觉得是否播放 |
 |--|--|
 |  MusicPlay.addPlayList()| 添加播放队列 |
 |--|--|
 |  MusicPlay.clearPlayList()| 清空播放队列 |
 |--|--|
-#### 还有好对方法，如设置音量大小、倍速、更新播放队列、开关通知栏等等。
+#### 还有好多方法，如设置音量大小、倍速、更新播放队列、开关通知栏、音效设置等等。
+### 可以参考[《开源库MusicPlayManager - 封装StarrySky音乐库》](https://blog.csdn.net/tobey_r1/article/details/125750367)
